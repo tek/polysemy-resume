@@ -1,0 +1,62 @@
+{
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "89ae775e9dfc2571f912156dd2f8627e14d4d507",
+        "sha256": "0ssw6byyn79fpyzswi28s5b85x66xh4xsfhmcfl5mkdxxpmyy0ns",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/89ae775e9dfc2571f912156dd2f8627e14d4d507.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "nixos-20.03",
+        "description": "Nix Packages collection",
+        "homepage": null,
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "773ef5ae78339db744b917c2b35d28812028bd8c",
+        "sha256": "0j07y007g2yk2mmp56xhdbwhjlnpdmp1lvsmx5nzfakcp8n3q7ci",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/773ef5ae78339db744b917c2b35d28812028bd8c.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "polysemy": {
+        "branch": "master",
+        "description": ":gemini: higher-order, no-boilerplate monads",
+        "homepage": "",
+        "owner": "polysemy-research",
+        "repo": "polysemy",
+        "rev": "62f5af5d03c274f83fb03a0eb9afb93b299e385c",
+        "sha256": "1bhxcn72ncizsixj985sl03ganaqs9q6rzgs5xbznk423bsh5d6n",
+        "type": "tarball",
+        "url": "https://github.com/polysemy-research/polysemy/archive/62f5af5d03c274f83fb03a0eb9afb93b299e385c.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "polysemy-test": {
+        "branch": "master",
+        "description": "Utilities for testing Polysemy programs",
+        "homepage": null,
+        "owner": "tek",
+        "repo": "polysemy-test",
+        "rev": "f8db1f6774bdf7d2be21ea49620d8382fab5965c",
+        "sha256": "0shzz7xkrqsm8pirrjwx65gyjhgrpfn67jgqrqpfa1b92gany5n2",
+        "type": "tarball",
+        "url": "https://github.com/tek/polysemy-test/archive/f8db1f6774bdf7d2be21ea49620d8382fab5965c.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "tryp-hs": {
+        "branch": "master",
+        "description": null,
+        "homepage": null,
+        "owner": "tek",
+        "repo": "tryp-hs",
+        "rev": "ee5ef9608217b25811a433536bb7f326cab03268",
+        "sha256": "06gr56sjljyr50wbsw9vphbasx8j9d1w5g9vx1zancw5wqfdxlyd",
+        "type": "tarball",
+        "url": "https://github.com/tek/tryp-hs/archive/ee5ef9608217b25811a433536bb7f326cab03268.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}

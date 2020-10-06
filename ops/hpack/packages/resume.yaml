@@ -1,0 +1,25 @@
+name: polysemy-resume
+synopsis: Polysemy error tracking
+<<: !include shared/meta.yaml
+defaults:
+  local: shared/defaults.yaml
+
+library:
+  source-dirs: lib
+  other-modules:
+    - Prelude
+  generated-exposed-modules:
+    - Paths_polysemy_resume
+
+dependencies:
+  - composition ^>= 1.0
+  - data-default ^>= 0.7
+  - either
+  - relude ^>= 0.7
+  - string-interpolate >= 0.1 && < 0.4
+  - template-haskell
+  - transformers
+
+tests:
+  polysemy-resume-unit:
+    <<: !include shared/test.yaml

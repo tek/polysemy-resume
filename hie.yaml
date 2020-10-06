@@ -1,0 +1,7 @@
+cradle:
+  cabal:
+    - path: "./packages/resume/lib"
+      component: "lib:polysemy-resume"
+
+    - path: "./packages/resume/test"
+      component: "polysemy-resume:test:polysemy-resume-unit"
