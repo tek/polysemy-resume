@@ -142,14 +142,14 @@ interpretResumerPartial =
 Then we use a different adapter function for `interpretStopper`:
 
 ```haskell
->>> runStop (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
+>>> runError (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
 Right 39
 ```
 
 `resumableFor` transforms the error and passes it to the consumer if it is
 a `Just`, and rethrows it if not.
-Since the error was only partially handled, we have to call `runStop` on the
-result, to obtain an `Either`.
+Since the error was only partially handled and unhandled errors get thrown as
+`Error`, we have to call `runError` on the result, to obtain an `Either`.
 
 If the consumer uses a constructor that throws an unhandled variant of the
 error, it propagates to the call site:
@@ -163,7 +163,7 @@ interpretResumerPartialUnhandled =
     resume (192 <$ stopBoom) \ (Blip num) ->
       pure (num * 3)
 
->>> runStop ((resumableFor bangOnly interpretStopper) (interpretResumerPartialUnhandled mainProgram))
+>>> runError ((resumableFor bangOnly interpretStopper) (interpretResumerPartialUnhandled mainProgram))
 Left (Boom "ouch")
 ```
 

@@ -60,7 +60,6 @@ test-suite polysemy-resume-unit
   main-is: Main.hs
   other-modules:
       Polysemy.Resume.ExampleTest
-      Polysemy.Resume.ResumeTest
       Paths_polysemy_resume
   hs-source-dirs:
       test

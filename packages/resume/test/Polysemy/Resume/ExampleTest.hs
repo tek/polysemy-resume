@@ -2,7 +2,7 @@ module Polysemy.Resume.ExampleTest where
 
 import Polysemy.Test (UnitTest, assertRight, runTestAuto, (===))
 
-import Polysemy.Resume (Resumable, Stop, resumable, resumableFor, resume, runStop, stop)
+import Polysemy.Resume (Resumable, Stop, resumable, resumableFor, resume, stop)
 
 data Stopper :: Effect where
   StopBang :: Stopper m ()
@@ -19,11 +19,11 @@ data Boom =
   Boom { unBoom :: Text }
   |
   Bang { unBang :: Int }
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show)
 
 newtype Blip =
   Blip { unBlip :: Int }
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show)
 
 bangOnly :: Boom -> Maybe Blip
 bangOnly = \case
@@ -65,6 +65,6 @@ interpretResumer =
 test_example :: UnitTest
 test_example =
   runTestAuto do
-    assertRight 39 =<< runStop (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
-    (Left (Boom "ouch") ===) =<< runStop (resumableFor bangOnly interpretStopper (interpretResumerPartialUnhandled mainProgram))
+    assertRight 39 =<< runError (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
+    (Left (Boom "ouch") ===) =<< runError (resumableFor bangOnly interpretStopper (interpretResumerPartialUnhandled mainProgram))
     (237 ===) =<< (resumable interpretStopper) (interpretResumer mainProgram)

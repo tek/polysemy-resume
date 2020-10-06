@@ -1,13 +1,13 @@
 module Main where
 
-import Polysemy.Resume.ResumeTest (test_resume)
+import Polysemy.Resume.ExampleTest (test_example)
 import Polysemy.Test (unitTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 
 tests :: TestTree
 tests =
   testGroup "unit" [
-    unitTest "stop and resume" test_resume
+    unitTest "stop and resume" test_example
   ]
 
 main :: IO ()
