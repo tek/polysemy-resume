@@ -22,7 +22,7 @@ distribEither initialState result =
 
 resumable ::
   ∀ eff err r .
-  (∀ r' . Member (Stop err) r' => InterpreterFor eff r') ->
+  InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable err eff) r
 resumable interpreter sem =
   Sem \ k -> runSem sem \ u ->
@@ -40,7 +40,7 @@ resumableOr ::
   ∀ eff err unhandled handled r .
   Member (Error unhandled) r =>
   (err -> Either unhandled handled) ->
-  (∀ r' . Member (Stop err) r' => InterpreterFor eff r') ->
+  InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable handled eff) r
 resumableOr canHandle interpreter sem =
   Sem \ k -> runSem sem \ u ->
@@ -63,7 +63,7 @@ resumableFor ::
   ∀ eff err handled r .
   Member (Error err) r =>
   (err -> Maybe handled) ->
-  (∀ r' . Member (Stop err) r' => InterpreterFor eff r') ->
+  InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable handled eff) r
 resumableFor canHandle =
   resumableOr canHandle'
