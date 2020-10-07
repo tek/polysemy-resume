@@ -1,12 +1,12 @@
 module Polysemy.Resume.Resumable where
 
-import Polysemy.Internal (Sem(Sem), liftSem, runSem, send)
+import Polysemy.Internal (Sem(Sem), liftSem, raise, raiseUnder, runSem, send)
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, inj, injWeaving, weave)
 
-import Polysemy.Error (catchJust, Error(Throw))
+import Polysemy.Error (Error(Throw), catchJust)
 import Polysemy.Resume.Data.Resumable (Resumable(..))
 import Polysemy.Resume.Data.Stop (Stop, stop)
-import Polysemy.Resume.Stop (runStop)
+import Polysemy.Resume.Stop (runStop, stopOnError)
 
 distribEither ::
   Functor f =>
@@ -20,8 +20,14 @@ distribEither initialState result =
     Left err -> Left err <$ initialState
 {-# INLINE distribEither #-}
 
+
+-- |Convert a bare interpreter for @eff@, which (potentially) uses 'Stop' to signal errors, into an interpreter for
+-- 'Resumable'.
+--
+-- >>> run $ resumable interpretStopper (interpretResumer mainProgram)
+-- 237
 resumable ::
-  ∀ eff err r .
+  ∀ (eff :: Effect) (err :: *) (r :: EffectRow) .
   InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable err eff) r
 resumable interpreter sem =
@@ -36,6 +42,41 @@ resumable interpreter sem =
         k g
 {-# INLINE resumable #-}
 
+-- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
+resumableError ::
+  ∀ eff err r .
+  InterpreterFor eff (Error err : Stop err : r) ->
+  InterpreterFor (Resumable err eff) r
+resumableError interpreter =
+  resumable (stopOnError . interpreter . raiseUnder)
+{-# INLINE resumableError #-}
+
+-- |Convert an interpreter for @eff@ that throws errors of type @err@ into a @Resumable@, but limiting the errors
+-- handled by consumers to the type @handled@, which rethrowing 'Error's of type @unhandled@.
+--
+-- The function @canHandle@ determines how the errors are split.
+--
+-- @
+-- newtype Blip =
+--   Blip { unBlip :: Int }
+--   deriving (Eq, Show)
+--
+-- bangOnly :: Boom -> Either Text Blip
+-- bangOnly = \\case
+--   Bang n -> Right (Blip n)
+--   Boom msg -> Left msg
+--
+-- interpretResumerPartial ::
+--   Member (Resumable Blip Stopper) r =>
+--   InterpreterFor Resumer r
+-- interpretResumerPartial =
+--   interpret \\ MainProgram ->
+--     resume (192 \<$ stopBang) \\ (Blip num) ->
+--       pure (num * 3)
+-- @
+--
+-- >>> runError (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
+-- Right 39
 resumableOr ::
   ∀ eff err unhandled handled r .
   Member (Error unhandled) r =>
@@ -59,6 +100,7 @@ resumableOr canHandle interpreter sem =
         k g
 {-# INLINE resumableOr #-}
 
+-- |Variant of 'resumableOr' that uses 'Maybe' and rethrows the original error.
 resumableFor ::
   ∀ eff err handled r .
   Member (Error err) r =>
@@ -72,14 +114,15 @@ resumableFor canHandle =
       maybeToRight err (canHandle err)
 {-# INLINE resumableFor #-}
 
-runResumable ::
+-- |Reinterpreting variant of 'resumableFor'.
+catchResumable ::
   ∀ eff handled err r .
   Members [eff, Error err] r =>
   (err -> Maybe handled) ->
   InterpreterFor (Resumable handled eff) r
-runResumable canHandle sem =
+catchResumable canHandle sem =
   Sem \ k -> runSem sem \ u ->
-    case decomp (hoist (runResumable canHandle) u) of
+    case decomp (hoist (catchResumable canHandle) u) of
       Right (Weaving (Resumable e) s wv ex ins) ->
         distribEither s ex <$> runSem resultFromEff k
         where
@@ -87,27 +130,18 @@ runResumable canHandle sem =
             catchJust canHandle (fmap Right $ liftSem $ weave s wv ins (injWeaving e)) (pure . Left)
       Left g ->
         k g
-{-# INLINE runResumable #-}
+{-# INLINE catchResumable #-}
 
-stopResumable ::
+-- |Interpret an effect @eff@ by wrapping it in @Resumable@ and @Stop@ and leaving the rest up to the user.
+runAsResumable ::
   ∀ err eff r .
   Members [Resumable err eff, Stop err] r =>
   InterpreterFor eff r
-stopResumable sem =
+runAsResumable sem =
   Sem \ k -> runSem sem \ u ->
-    case decomp (hoist stopResumable u) of
+    case decomp (hoist runAsResumable u) of
       Right wav ->
         runSem (either stop pure =<< send (Resumable wav)) k
       Left g ->
         k g
-{-# INLINE stopResumable #-}
-
-resume ::
-  ∀ err eff r a .
-  Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
-  (err -> Sem r a) ->
-  Sem r a
-resume sem handler =
-  either handler pure =<< runStop (stopResumable (raiseUnder sem))
-{-# INLINE resume #-}
+{-# INLINE runAsResumable #-}

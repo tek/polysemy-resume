@@ -17,7 +17,6 @@ let
   versionOverrides = builtins.listToAttrs versions;
 
   custom = {
-    chronos = cabal2nix "chronos" niv.chronos;
     polysemy = cabal2nix "polysemy" niv.polysemy;
     polysemy-plugin = subPkg "polysemy-plugin" "polysemy-plugin" niv.polysemy;
     polysemy-test = subPkg "packages/polysemy-test" "polysemy-test" niv.polysemy-test;

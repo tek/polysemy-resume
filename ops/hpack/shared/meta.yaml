@@ -8,3 +8,4 @@ category: Experimental
 build-type: Simple
 extra-source-files:
   - readme.md
+  - changelog.md

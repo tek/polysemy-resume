@@ -1,6 +1,7 @@
 module Polysemy.Resume.Stop where
 
 import Control.Monad.Trans.Except (throwE)
+import Polysemy.Error (runError, throw)
 import Polysemy.Internal (Sem(Sem))
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, weave)
 
@@ -10,6 +11,7 @@ hush :: Either e a -> Maybe a
 hush (Right a) = Just a
 hush (Left _) = Nothing
 
+-- |Equivalent of 'runError'.
 runStop ::
   Sem (Stop e : r) a ->
   Sem r (Either e a)
@@ -22,12 +24,24 @@ runStop (Sem m) =
         throwE e
 {-# INLINE runStop #-}
 
-errorStop ::
+-- |Convert a program using regular 'Error's to one using 'Stop'.
+stopOnError ::
   Member (Stop err) r =>
   Sem (Error err : r) a ->
   Sem r a
-errorStop sem =
+stopOnError sem =
   runError sem >>= \case
     Right a -> pure a
     Left err -> stop err
-{-# INLINE errorStop #-}
+{-# INLINE stopOnError #-}
+
+-- |Convert a program using 'Stop' to one using 'Error'.
+stopToError ::
+  Member (Error err) r =>
+  Sem (Stop err : r) a ->
+  Sem r a
+stopToError sem =
+  runStop sem >>= \case
+    Right a -> pure a
+    Left err -> throw err
+{-# INLINE stopToError #-}

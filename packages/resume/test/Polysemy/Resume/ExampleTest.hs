@@ -1,7 +1,9 @@
 module Polysemy.Resume.ExampleTest where
 
+import Polysemy (interpret, makeSem)
 import Polysemy.Test (UnitTest, assertRight, runTestAuto, (===))
 
+import Polysemy.Error (runError)
 import Polysemy.Resume (Resumable, Stop, resumable, resumableFor, resume, stop)
 
 data Stopper :: Effect where

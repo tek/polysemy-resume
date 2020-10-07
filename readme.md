@@ -1,6 +1,8 @@
 # About
 
-This project is an experiment with tracking Polysemy errors across interpreters.
+This library provides the Polysemy effects 'Resumable' and 'Stop' for the
+purpose of safely connecting throwing and catching errors across different
+interpreters.
 
 # Example
 
@@ -90,7 +92,7 @@ interpretStopper =
 Instead of `Error`, we are using `Stop` here, which is identical except for not
 providing `Catch`.
 This only serves to be more explicit about the intention of the error, but
-a regular `Error` can be converted with `errorStop`.
+a regular `Error` can be converted with `stopOnError`.
 
 In order to convert this interpreter to a `Resumable`, we use `resumable`:
 
