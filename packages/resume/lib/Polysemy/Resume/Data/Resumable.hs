@@ -9,3 +9,11 @@ data Resumable err eff m a where
     ∀ err eff r a .
     Weaving eff (Sem r) a ->
     Resumable err eff (Sem r) (Either err a)
+
+-- |Infix alias for 'Resumable'.
+--
+-- @
+-- Member (Stopper ! Boom) r =>
+-- @
+type eff ! err =
+  Resumable err eff

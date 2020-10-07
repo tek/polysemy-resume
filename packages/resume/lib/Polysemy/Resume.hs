@@ -25,7 +25,7 @@ module Polysemy.Resume (
   module Polysemy.Resume.Stop,
 ) where
 
-import Polysemy.Resume.Data.Resumable (Resumable)
+import Polysemy.Resume.Data.Resumable (Resumable, type (!))
 import Polysemy.Resume.Data.Stop (Stop(..), stop)
 import Polysemy.Resume.Resumable (
   catchResumable,
