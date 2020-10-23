@@ -49,6 +49,7 @@ import Polysemy.Resume.Resume (
 import Polysemy.Resume.Stop (
   stopOnError,
   stopToError,
+  stopEither,
   )
 
 -- $intro

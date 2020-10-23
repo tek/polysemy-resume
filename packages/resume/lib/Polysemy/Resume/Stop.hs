@@ -45,3 +45,11 @@ stopToError sem =
     Right a -> pure a
     Left err -> throw err
 {-# INLINE stopToError #-}
+
+-- |Stop if the argument is 'Left'.
+stopEither ::
+  Member (Stop err) r =>
+  Either err a ->
+  Sem r a
+stopEither =
+  either stop pure
