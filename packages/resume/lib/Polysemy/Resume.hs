@@ -6,6 +6,7 @@ module Polysemy.Resume (
   -- * Resuming a Stopped Computation
   resume,
   resumable,
+  resumableIO,
   -- * Partial Handlers
   -- $partial
   resumableOr,
@@ -32,6 +33,7 @@ import Polysemy.Resume.Resumable (
   resumable,
   resumableError,
   resumableFor,
+  resumableIO,
   resumableOr,
   runAsResumable,
   )
@@ -47,9 +49,11 @@ import Polysemy.Resume.Resume (
   resuming,
   )
 import Polysemy.Resume.Stop (
+  runStop,
+  stopEither,
   stopOnError,
   stopToError,
-  stopEither,
+  stopToIOFinal,
   )
 
 -- $intro

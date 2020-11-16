@@ -3,10 +3,11 @@ module Polysemy.Resume.Resumable where
 import Polysemy.Internal (Sem(Sem), liftSem, raise, raiseUnder, runSem, send)
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, inj, injWeaving, weave)
 
+import Polysemy (Final)
 import Polysemy.Error (Error(Throw), catchJust)
 import Polysemy.Resume.Data.Resumable (Resumable(..))
 import Polysemy.Resume.Data.Stop (Stop, stop)
-import Polysemy.Resume.Stop (runStop, stopOnError)
+import Polysemy.Resume.Stop (runStop, stopOnError, stopToIOFinal)
 
 distribEither ::
   Functor f =>
@@ -41,6 +42,25 @@ resumable interpreter sem =
       Left g ->
         k g
 {-# INLINE resumable #-}
+
+-- |Like 'resumable', but use exceptions instead of 'ExceptT'.
+resumableIO ::
+  ∀ (eff :: Effect) (err :: *) (r :: EffectRow) .
+  Typeable err =>
+  Member (Final IO) r =>
+  InterpreterFor eff (Stop err : r) ->
+  InterpreterFor (Resumable err eff) r
+resumableIO interpreter sem =
+  Sem \ k -> runSem sem \ u ->
+    case decomp (hoist (resumable interpreter) u) of
+      Right (Weaving (Resumable e) s wv ex ins) ->
+        distribEither s ex <$> runSem resultFromEff k
+        where
+          resultFromEff =
+            stopToIOFinal $ interpreter $ liftSem $ weave s (raise . raise . wv) ins (injWeaving e)
+      Left g ->
+        k g
+{-# INLINE resumableIO #-}
 
 -- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
 resumableError ::
