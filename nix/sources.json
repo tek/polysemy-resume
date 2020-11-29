@@ -29,10 +29,10 @@
         "homepage": "",
         "owner": "polysemy-research",
         "repo": "polysemy",
-        "rev": "62f5af5d03c274f83fb03a0eb9afb93b299e385c",
-        "sha256": "1bhxcn72ncizsixj985sl03ganaqs9q6rzgs5xbznk423bsh5d6n",
+        "rev": "478c86e080f38334f7ea5b0259f900916db58c33",
+        "sha256": "0vpfc7w90gyj60ydzpjz9wilm28hcl8lbiwicw5qj1rnzj3lfy66",
         "type": "tarball",
-        "url": "https://github.com/polysemy-research/polysemy/archive/62f5af5d03c274f83fb03a0eb9afb93b299e385c.tar.gz",
+        "url": "https://github.com/polysemy-research/polysemy/archive/478c86e080f38334f7ea5b0259f900916db58c33.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "polysemy-test": {
@@ -41,10 +41,10 @@
         "homepage": null,
         "owner": "tek",
         "repo": "polysemy-test",
-        "rev": "f8db1f6774bdf7d2be21ea49620d8382fab5965c",
-        "sha256": "0shzz7xkrqsm8pirrjwx65gyjhgrpfn67jgqrqpfa1b92gany5n2",
+        "rev": "5889efb49922f58d090725389c63c02e9505aa31",
+        "sha256": "1lihkwq4nb80wbw0dzvpi8is1hygd22jidmy326jill3didndh2n",
         "type": "tarball",
-        "url": "https://github.com/tek/polysemy-test/archive/f8db1f6774bdf7d2be21ea49620d8382fab5965c.tar.gz",
+        "url": "https://github.com/tek/polysemy-test/archive/5889efb49922f58d090725389c63c02e9505aa31.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "tryp-hs": {
@@ -53,10 +53,10 @@
         "homepage": null,
         "owner": "tek",
         "repo": "tryp-hs",
-        "rev": "ee5ef9608217b25811a433536bb7f326cab03268",
-        "sha256": "06gr56sjljyr50wbsw9vphbasx8j9d1w5g9vx1zancw5wqfdxlyd",
+        "rev": "7e09922245a35d44ab2aab972adb02d36ae4d0e8",
+        "sha256": "0fq58k88brzgc8y0na9i970n230sgg2y3a51qf05ykksq05q267s",
         "type": "tarball",
-        "url": "https://github.com/tek/tryp-hs/archive/ee5ef9608217b25811a433536bb7f326cab03268.tar.gz",
+        "url": "https://github.com/tek/tryp-hs/archive/7e09922245a35d44ab2aab972adb02d36ae4d0e8.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

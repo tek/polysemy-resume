@@ -5,7 +5,7 @@ cabal-version: 2.2
 -- see: https://github.com/sol/hpack
 
 name:           polysemy-resume
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       Polysemy error tracking
 description:    Please see the readme on Github at <https://github.com/tek/polysemy-resume>
 category:       Experimental
@@ -17,6 +17,7 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     readme.md
+    changelog.md
 
 library
   exposed-modules:
@@ -38,7 +39,7 @@ library
   ghc-options: -flate-specialise -fspecialise-aggressively -Wall -fplugin=Polysemy.Plugin
   build-depends:
       base >=4 && <5
-    , polysemy >=1.3.0 && <1.4
+    , polysemy >=1.3.0
     , polysemy-plugin
     , relude >=0.7 && <0.8
     , transformers
@@ -61,7 +62,7 @@ test-suite polysemy-resume-unit
   build-depends:
       base >=4 && <5
     , hedgehog
-    , polysemy >=1.3.0 && <1.4
+    , polysemy >=1.3.0
     , polysemy-plugin
     , polysemy-resume
     , polysemy-test

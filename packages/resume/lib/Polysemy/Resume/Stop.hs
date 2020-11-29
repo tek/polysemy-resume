@@ -1,17 +1,16 @@
 module Polysemy.Resume.Stop where
 
-import qualified Text.Show
 import Control.Monad.Trans.Except (throwE)
+import Data.Typeable (typeRep)
+import Polysemy (Final)
 import Polysemy.Error (runError, throw)
+import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
 import Polysemy.Internal (Sem(Sem))
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, weave)
-import Polysemy (Final)
-import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
-import Data.Typeable (typeRep)
+import qualified Text.Show
 
+import Control.Exception (throwIO, try)
 import Polysemy.Resume.Data.Stop (Stop(Stop), stop)
-import Control.Exception (throwIO)
-import Control.Exception (try)
 
 hush :: Either e a -> Maybe a
 hush (Right a) = Just a
