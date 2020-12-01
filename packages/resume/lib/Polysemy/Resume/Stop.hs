@@ -5,8 +5,8 @@ import Data.Typeable (typeRep)
 import Polysemy (Final)
 import Polysemy.Error (runError, throw)
 import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
-import Polysemy.Internal (Sem(Sem))
-import Polysemy.Internal.Union (Weaving(Weaving), decomp, weave)
+import Polysemy.Internal (usingSem, send, Sem(Sem))
+import Polysemy.Internal.Union (hoist, Weaving(Weaving), decomp, weave)
 import qualified Text.Show
 
 import Control.Exception (throwIO, try)
@@ -99,3 +99,18 @@ stopToErrorIO ::
 stopToErrorIO =
   either throw pure <=< stopToIOFinal
 {-# INLINE stopToErrorIO #-}
+
+mapStop ::
+  ∀ e e' r a .
+  Member (Stop e') r =>
+  (e -> e') ->
+  Sem (Stop e : r) a ->
+  Sem r a
+mapStop f (Sem m) =
+  Sem \ k -> m \ u ->
+    case decomp u of
+      Left x ->
+        k (hoist (mapStop f) x)
+      Right (Weaving (Stop e) _ _ _ _) ->
+        usingSem k (send $ Stop (f e))
+{-# INLINE mapStop #-}

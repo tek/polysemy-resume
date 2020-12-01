@@ -61,6 +61,15 @@ resumeAs a =
   resuming \ _ -> pure a
 {-# INLINE resumeAs #-}
 
+-- |Convenience specialization of 'resume' that silently discards errors for void programs.
+resume_ ::
+  ∀ err eff r .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) () ->
+  Sem r ()
+resume_ =
+  resumeAs ()
+
 -- |Variant of 'resume' that propagates the error to another 'Stop' effect after applying a function.
 resumeHoist ::
   ∀ err err' eff r a .
@@ -92,6 +101,15 @@ restop ::
 restop =
   resumeHoist id
 {-# INLINE restop #-}
+
+-- |Variant of 'restop' that immediately produces an 'Either'.
+resumeEither ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  Sem r (Either err a)
+resumeEither =
+  runStop . restop . raiseUnder
 
 -- |Variant of 'resume' that propagates the error to an 'Error' effect after applying a function.
 resumeHoistError ::
