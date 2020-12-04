@@ -72,6 +72,12 @@ interpretResumer =
       pure 237
 ```
 
+For a nicer syntax, there is a type alias for `Resumable`:
+
+```haskell
+Member (Stopper ! Boom) r =>
+```
+
 We have now marked the interpreter for `Resumer`, which consumes `Stopper`, as
 being capable of handling the `Boom` error when it occurs in `Stopper`.
 The function `resume` takes an error handler as its second argument with which
@@ -104,6 +110,31 @@ In order to convert this interpreter to a `Resumable`, we use `resumable`:
 `resumable` weaves `interpretStopper` and its `Stop` together into
 a `Resumable`, which is then consumed entirely by `resume` inside
 `interpretResumer`, so no additional effects have to be handled.
+
+## Higher-Order Effects
+
+Converting an interpreter with `resumable` only works in rather simple
+conditions.
+If there are higher-order effects involved, you may get incorrect semantics,
+for example when inserting a `finally` around the entire resumable program:
+
+```haskell
+resumable (interpretStopper (sem `finally` releaseResources))
+```
+
+In this case, `releaseResources` is executed after each use of `StopBang` or
+`StopBoom`.
+This requires the use of `interpretResumable` and `interpretResumableH`, which
+take handler functions like `interpret`:
+
+```haskell
+interpretStopper ::
+  InterpreterFor (Stopper ! Boom) r
+interpretStopper =
+  interpretResumable \case
+    StopBang -> stop (Bang 13)
+    StopBoom -> stop (Boom "ouch")
+```
 
 ## Partial Error Handling
 
@@ -171,4 +202,4 @@ Left (Boom "ouch")
 
 # Thanks
 
-to @KingOfTheHomeless for the meat of the implementation!
+to @KingOfTheHomeless for providing the initial implementation and lots of consultation!

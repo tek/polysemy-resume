@@ -5,6 +5,8 @@ module Polysemy.Resume (
   module Polysemy.Resume.Data.Resumable,
   -- * Resuming a Stopped Computation
   resume,
+  interpretResumable,
+  interpretResumableH,
   resumable,
   resumableIO,
   -- * Partial Handlers
@@ -29,9 +31,11 @@ module Polysemy.Resume (
 ) where
 
 import Polysemy.Resume.Data.Resumable (Resumable, type (!))
-import Polysemy.Resume.Data.Stop (Stop(..), stop)
+import Polysemy.Resume.Data.Stop (Stop(..), stop, stopOr)
 import Polysemy.Resume.Resumable (
   catchResumable,
+  interpretResumable,
+  interpretResumableH,
   resumable,
   resumableError,
   resumableFor,

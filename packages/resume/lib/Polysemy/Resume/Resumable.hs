@@ -1,10 +1,12 @@
 module Polysemy.Resume.Resumable where
 
-import Polysemy.Internal (Sem(Sem), liftSem, raise, raiseUnder, runSem, send)
+import Polysemy (Final, Tactical)
+import Polysemy.Error (Error(Throw), catchJust)
+import Polysemy.Internal (Sem(Sem, runSem), liftSem, raise, raiseUnder, send, usingSem)
+import Polysemy.Internal.CustomErrors (FirstOrder)
+import Polysemy.Internal.Tactics (liftT, runTactics)
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, inj, injWeaving, weave)
 
-import Polysemy (Final)
-import Polysemy.Error (Error(Throw), catchJust)
 import Polysemy.Resume.Data.Resumable (Resumable(..))
 import Polysemy.Resume.Data.Stop (Stop, stop)
 import Polysemy.Resume.Stop (runStop, stopOnError, stopToIOFinal)
@@ -21,9 +23,26 @@ distribEither initialState result =
     Left err -> Left err <$ initialState
 {-# INLINE distribEither #-}
 
-
 -- |Convert a bare interpreter for @eff@, which (potentially) uses 'Stop' to signal errors, into an interpreter for
 -- 'Resumable'.
+-- /Beware/: This will display unsound behaviour if:
+-- * the interpreter is wrapped with actions of another effect, as in:
+--
+--   @
+--   interpretEffResumable :: InterpreterFor Eff r
+--   ...
+--
+--   interpretEffResumable :: InterpreterFor (Resumable Text Eff) r
+--   interpretEffResumable sem =
+--   resumable (interpretEff (sem `finally` releaseResources))
+--   @
+--
+--   In this case, @releaseResources@ will be called after /every/ use of @Eff@ in @sem@, not after the entire thunk.
+--
+-- * the interpreter of a higher-order effect uses a different interpreter after using @runT@/@bindT@.
+--   In this case, it will use the original interpreter instead.
+--
+-- If your use case matches one of these conditions, you'll need to use 'interpretResumable'.
 --
 -- >>> run $ resumable interpretStopper (interpretResumer mainProgram)
 -- 237
@@ -31,8 +50,8 @@ resumable ::
   ∀ (eff :: Effect) (err :: *) (r :: EffectRow) .
   InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable err eff) r
-resumable interpreter sem =
-  Sem \ k -> runSem sem \ u ->
+resumable interpreter (Sem m) =
+  Sem \ k -> m \ u ->
     case decomp (hoist (resumable interpreter) u) of
       Right (Weaving (Resumable e) s wv ex ins) ->
         distribEither s ex <$> runSem resultFromEff k
@@ -50,8 +69,8 @@ resumableIO ::
   Member (Final IO) r =>
   InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable err eff) r
-resumableIO interpreter sem =
-  Sem \ k -> runSem sem \ u ->
+resumableIO interpreter (Sem m) =
+  Sem \ k -> m \ u ->
     case decomp (hoist (resumable interpreter) u) of
       Right (Weaving (Resumable e) s wv ex ins) ->
         distribEither s ex <$> runSem resultFromEff k
@@ -61,6 +80,57 @@ resumableIO interpreter sem =
       Left g ->
         k g
 {-# INLINE resumableIO #-}
+
+-- |Like 'interpretResumable', but for higher-order effects.
+interpretResumableH ::
+  ∀ (eff :: Effect) (err :: *) (r :: EffectRow) .
+  -- |This handler function has @'Stop' err@ in its stack, allowing it to absorb errors.
+  (∀ x r0 . eff (Sem r0) x -> Tactical (Resumable err eff) (Sem r0) (Stop err : r) x) ->
+  InterpreterFor (Resumable err eff) r
+interpretResumableH handler (Sem m) =
+  Sem \ k -> m \ u ->
+    case decomp u of
+      Left there ->
+        k (hoist (interpretResumableH handler) there)
+      Right (Weaving (Resumable (Weaving e s dist ex ins)) sOuter distOuter exOuter insOuter) ->
+        usingSem k (exFinal <$> runStop tac)
+        where
+          tac =
+            runTactics
+            (Compose (s <$ sOuter))
+            (raiseUnder . fmap Compose . distOuter . fmap dist . getCompose)
+            (join . fmap ins . insOuter . getCompose)
+            (raise . interpretResumableH handler . fmap Compose . distOuter . fmap dist . getCompose)
+            (handler e)
+          exFinal = exOuter . \case
+            Right (getCompose -> a) -> Right . ex <$> a
+            Left err -> Left err <$ sOuter
+{-# INLINE interpretResumableH #-}
+
+-- |Create an interpreter for @'Resumable' err eff@ by supplying a handler function for @eff@, analogous to
+-- 'Polysemy.interpret'.
+-- If the handler throws errors with 'Stop', they will be absorbed into 'Resumable', to be caught by
+-- 'Polysemy.Resume.resume' in a downstream interpreter.
+--
+-- @
+-- interpretStopperResumable ::
+--   Member (Stop Boom) r =>
+--   InterpreterFor Stopper r
+-- interpretStopperResumable =
+--   interpretResumable \\case
+--     StopBang -> stop (Bang 13)
+--     StopBoom -> stop (Boom "ouch")
+-- @
+--
+-- >>> run $ interpretStopperResumable (interpretResumer mainProgram)
+-- 237
+interpretResumable ::
+  FirstOrder (Resumable err eff) "interpretResumable" =>
+  (∀ x r0 . eff (Sem r0) x -> Sem (Stop err : r) x) ->
+  InterpreterFor (Resumable err eff) r
+interpretResumable handler =
+  interpretResumableH (liftT . handler)
+{-# INLINE interpretResumable #-}
 
 -- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
 resumableError ::
@@ -103,8 +173,8 @@ resumableOr ::
   (err -> Either unhandled handled) ->
   InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable handled eff) r
-resumableOr canHandle interpreter sem =
-  Sem \ k -> runSem sem \ u ->
+resumableOr canHandle interpreter (Sem m) =
+  Sem \ k -> m \ u ->
     case decomp (hoist (resumableOr canHandle interpreter) u) of
       Right (Weaving (Resumable e) s wv ex ins) ->
         distribEither s ex <$> (tryHandle =<< runSem resultFromEff k)
@@ -140,8 +210,8 @@ catchResumable ::
   Members [eff, Error err] r =>
   (err -> Maybe handled) ->
   InterpreterFor (Resumable handled eff) r
-catchResumable canHandle sem =
-  Sem \ k -> runSem sem \ u ->
+catchResumable canHandle (Sem m) =
+  Sem \ k -> m \ u ->
     case decomp (hoist (catchResumable canHandle) u) of
       Right (Weaving (Resumable e) s wv ex ins) ->
         distribEither s ex <$> runSem resultFromEff k
@@ -157,8 +227,8 @@ runAsResumable ::
   ∀ err eff r .
   Members [Resumable err eff, Stop err] r =>
   InterpreterFor eff r
-runAsResumable sem =
-  Sem \ k -> runSem sem \ u ->
+runAsResumable (Sem m) =
+  Sem \ k -> m \ u ->
     case decomp (hoist runAsResumable u) of
       Right wav ->
         runSem (either stop pure =<< send (Resumable wav)) k

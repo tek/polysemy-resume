@@ -83,21 +83,19 @@ resumeHoist f =
 
 -- |Variant of 'resumeHoist' that uses a constant value.
 resumeHoistAs ::
-  ∀ err err' eff r a .
+  ∀ err err' eff r .
   Members [Resumable err eff, Stop err'] r =>
   err' ->
-  Sem (eff : r) a ->
-  Sem r a
+  InterpreterFor eff r
 resumeHoistAs err =
   resumeHoist (const err)
 {-# INLINE resumeHoistAs #-}
 
 -- |Variant of 'resumeHoist' that uses the unchanged error.
 restop ::
-  ∀ err eff r a .
+  ∀ err eff r .
   Members [Resumable err eff, Stop err] r =>
-  Sem (eff : r) a ->
-  Sem r a
+  InterpreterFor eff r
 restop =
   resumeHoist id
 {-# INLINE restop #-}
