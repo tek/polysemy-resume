@@ -125,7 +125,7 @@ interpretResumableH handler (Sem m) =
 -- >>> run $ interpretStopperResumable (interpretResumer mainProgram)
 -- 237
 interpretResumable ::
-  FirstOrder (Resumable err eff) "interpretResumable" =>
+  FirstOrder eff "interpretResumable" =>
   (∀ x r0 . eff (Sem r0) x -> Sem (Stop err : r) x) ->
   InterpreterFor (Resumable err eff) r
 interpretResumable handler =
