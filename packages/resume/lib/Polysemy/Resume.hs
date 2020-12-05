@@ -60,6 +60,7 @@ import Polysemy.Resume.Stop (
   mapStop,
   runStop,
   stopEither,
+  stopNote,
   stopOnError,
   stopToError,
   stopToIOFinal,

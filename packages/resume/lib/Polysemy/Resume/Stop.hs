@@ -5,8 +5,8 @@ import Data.Typeable (typeRep)
 import Polysemy (Final)
 import Polysemy.Error (runError, throw)
 import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
-import Polysemy.Internal (usingSem, send, Sem(Sem))
-import Polysemy.Internal.Union (hoist, Weaving(Weaving), decomp, weave)
+import Polysemy.Internal (Sem(Sem), send, usingSem)
+import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, weave)
 import qualified Text.Show
 
 import Control.Exception (throwIO, try)
@@ -71,6 +71,15 @@ stopEither ::
   Sem r a
 stopEither =
   either stop pure
+
+-- |Stop with the supplied error if the argument is 'Nothing'.
+stopNote ::
+  Member (Stop err) r =>
+  err ->
+  Maybe a ->
+  Sem r a
+stopNote err =
+  maybe (stop err) pure
 
 -- |Convert a program using regular 'Error's to one using 'Stop'.
 stopOnError ::
