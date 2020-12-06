@@ -64,13 +64,24 @@ stopToIOFinal sem =
     pure $ either ((<$ s) . Left . unwrapExc) (fmap Right) <$> try m'
 {-# INLINE stopToIOFinal #-}
 
+-- |Stop if the argument is 'Left', transforming the error with @f@.
+stopEitherWith ::
+  Member (Stop err') r =>
+  (err -> err') ->
+  Either err a ->
+  Sem r a
+stopEitherWith f =
+  either (stop . f) pure
+{-# INLINE stopEitherWith #-}
+
 -- |Stop if the argument is 'Left'.
 stopEither ::
   Member (Stop err) r =>
   Either err a ->
   Sem r a
 stopEither =
-  either stop pure
+  stopEitherWith id
+{-# INLINE stopEither #-}
 
 -- |Stop with the supplied error if the argument is 'Nothing'.
 stopNote ::
@@ -80,6 +91,7 @@ stopNote ::
   Sem r a
 stopNote err =
   maybe (stop err) pure
+{-# INLINE stopNote #-}
 
 -- |Convert a program using regular 'Error's to one using 'Stop'.
 stopOnError ::
