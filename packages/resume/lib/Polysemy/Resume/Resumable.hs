@@ -62,6 +62,23 @@ resumable interpreter (Sem m) =
         k g
 {-# INLINE resumable #-}
 
+-- |Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
+liftResumable ::
+  ∀ (eff :: Effect) (err :: *) (r :: EffectRow) .
+  InterpreterFor eff r ->
+  InterpreterFor (Resumable err eff) r
+liftResumable interpreter (Sem m) =
+  Sem \ k -> m \ u ->
+    case decomp (hoist (liftResumable interpreter) u) of
+      Right (Weaving (Resumable e) s wv ex ins) ->
+        distribEither s ex <$> runSem resultFromEff k
+        where
+          resultFromEff =
+            fmap Right $ interpreter $ liftSem $ weave s (raise . wv) ins (injWeaving e)
+      Left g ->
+        k g
+{-# INLINE liftResumable #-}
+
 -- |Like 'resumable', but use exceptions instead of 'ExceptT'.
 resumableIO ::
   ∀ (eff :: Effect) (err :: *) (r :: EffectRow) .
