@@ -72,7 +72,7 @@ resume_ =
 
 -- |Variant of 'resume' that propagates the error to another 'Stop' effect after applying a function.
 resumeHoist ::
-  ∀ err err' eff r a .
+  ∀ err eff err' r a .
   Members [Resumable err eff, Stop err'] r =>
   (err -> err') ->
   Sem (eff : r) a ->
@@ -83,7 +83,7 @@ resumeHoist f =
 
 -- |Variant of 'resumeHoist' that uses a constant value.
 resumeHoistAs ::
-  ∀ err err' eff r .
+  ∀ err eff err' r .
   Members [Resumable err eff, Stop err'] r =>
   err' ->
   InterpreterFor eff r
@@ -111,7 +111,7 @@ resumeEither =
 
 -- |Variant of 'resume' that propagates the error to an 'Error' effect after applying a function.
 resumeHoistError ::
-  ∀ err err' eff r a .
+  ∀ err eff err' r a .
   Members [Resumable err eff, Error err'] r =>
   (err -> err') ->
   Sem (eff : r) a ->
@@ -122,7 +122,7 @@ resumeHoistError f =
 
 -- |Variant of 'resumeHoistError' that uses the unchanged error.
 resumeHoistErrorAs ::
-  ∀ err err' eff r a .
+  ∀ err eff err' r a .
   Members [Resumable err eff, Error err'] r =>
   err' ->
   Sem (eff : r) a ->
