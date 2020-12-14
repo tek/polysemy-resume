@@ -13,7 +13,7 @@ data Resumable err eff :: Effect where
 -- |Infix alias for 'Resumable'.
 --
 -- @
--- Member (Stopper ! Boom) r =>
+-- Member (Stopper !! Boom) r =>
 -- @
-type eff ! err =
+type eff !! err =
   Resumable err eff
