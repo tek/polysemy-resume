@@ -75,7 +75,7 @@ interpretResumer =
 For a nicer syntax, there is a type alias for `Resumable`:
 
 ```haskell
-Member (Stopper ! Boom) r =>
+Member (Stopper !! Boom) r =>
 ```
 
 We have now marked the interpreter for `Resumer`, which consumes `Stopper`, as
@@ -129,7 +129,7 @@ take handler functions like `interpret`:
 
 ```haskell
 interpretStopper ::
-  InterpreterFor (Stopper ! Boom) r
+  InterpreterFor (Stopper !! Boom) r
 interpretStopper =
   interpretResumable \case
     StopBang -> stop (Bang 13)

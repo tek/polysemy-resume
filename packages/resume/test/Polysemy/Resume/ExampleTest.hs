@@ -4,7 +4,7 @@ import Polysemy (interpret, makeSem)
 import Polysemy.Test (UnitTest, assertRight, runTestAuto, (===))
 
 import Polysemy.Error (runError)
-import Polysemy.Resume (Stop, resumable, resumableFor, resume, stop, type (!))
+import Polysemy.Resume (Stop, resumable, resumableFor, resume, stop, type (!!))
 
 data Stopper :: Effect where
   StopBang :: Stopper m ()
@@ -41,7 +41,7 @@ interpretStopper =
     StopBoom -> stop (Boom "ouch")
 
 interpretResumerPartialUnhandled ::
-  Member (Stopper ! Blip) r =>
+  Member (Stopper !! Blip) r =>
   InterpreterFor Resumer r
 interpretResumerPartialUnhandled =
   interpret \ MainProgram ->
@@ -49,7 +49,7 @@ interpretResumerPartialUnhandled =
       pure (num * 3)
 
 interpretResumerPartial ::
-  Member (Stopper ! Blip) r =>
+  Member (Stopper !! Blip) r =>
   InterpreterFor Resumer r
 interpretResumerPartial =
   interpret \ MainProgram ->
@@ -57,7 +57,7 @@ interpretResumerPartial =
       pure (num * 3)
 
 interpretResumer ::
-  Member (Stopper ! Boom) r =>
+  Member (Stopper !! Boom) r =>
   InterpreterFor Resumer r
 interpretResumer =
   interpret \ MainProgram ->
