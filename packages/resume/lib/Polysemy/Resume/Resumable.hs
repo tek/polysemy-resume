@@ -247,9 +247,9 @@ runAsResumable ::
   InterpreterFor eff r
 runAsResumable (Sem m) =
   Sem \ k -> m \ u ->
-    case decomp (hoist runAsResumable u) of
+    case decomp (hoist (runAsResumable @err @eff) u) of
       Right wav ->
-        runSem (either stop pure =<< send (Resumable wav)) k
+        runSem (either (stop @err) pure =<< send (Resumable wav)) k
       Left g ->
         k g
 {-# INLINE runAsResumable #-}

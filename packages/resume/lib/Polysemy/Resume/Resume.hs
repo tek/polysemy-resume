@@ -36,7 +36,7 @@ resume ::
   (err -> Sem r a) ->
   Sem r a
 resume sem handler =
-  either handler pure =<< runStop (runAsResumable (raiseUnder sem))
+  either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
 {-# INLINE resume #-}
 
 -- |Flipped variant of 'resume'.
@@ -58,7 +58,7 @@ resumeAs ::
   Sem (eff : r) a ->
   Sem r a
 resumeAs a =
-  resuming \ _ -> pure a
+  resuming @err \ _ -> pure a
 {-# INLINE resumeAs #-}
 
 -- |Convenience specialization of 'resume' that silently discards errors for void programs.
@@ -68,7 +68,7 @@ resume_ ::
   Sem (eff : r) () ->
   Sem r ()
 resume_ =
-  resumeAs ()
+  resumeAs @err ()
 
 -- |Variant of 'resume' that propagates the error to another 'Stop' effect after applying a function.
 resumeHoist ::
@@ -88,7 +88,7 @@ resumeHoistAs ::
   err' ->
   InterpreterFor eff r
 resumeHoistAs err =
-  resumeHoist (const err)
+  resumeHoist @err (const err)
 {-# INLINE resumeHoistAs #-}
 
 -- |Variant of 'resumeHoist' that uses the unchanged error.
@@ -97,7 +97,7 @@ restop ::
   Members [Resumable err eff, Stop err] r =>
   InterpreterFor eff r
 restop =
-  resumeHoist id
+  resumeHoist @err id
 {-# INLINE restop #-}
 
 -- |Variant of 'restop' that immediately produces an 'Either'.
@@ -107,7 +107,7 @@ resumeEither ::
   Sem (eff : r) a ->
   Sem r (Either err a)
 resumeEither =
-  runStop . restop . raiseUnder
+  runStop . restop @err . raiseUnder
 
 -- |Variant of 'resume' that propagates the error to an 'Error' effect after applying a function.
 resumeHoistError ::
@@ -128,7 +128,7 @@ resumeHoistErrorAs ::
   Sem (eff : r) a ->
   Sem r a
 resumeHoistErrorAs err =
-  resumeHoistError (const err)
+  resumeHoistError @err (const err)
 {-# INLINE resumeHoistErrorAs #-}
 
 -- |Variant of 'resumeHoistError' that uses the unchanged error.
@@ -138,5 +138,5 @@ resumeError ::
   Sem (eff : r) a ->
   Sem r a
 resumeError =
-  resumeHoistError id
+  resumeHoistError @err id
 {-# INLINE resumeError #-}
