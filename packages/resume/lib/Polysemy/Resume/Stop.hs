@@ -42,10 +42,12 @@ instance Show (StopExc Text) where
   show (StopExc e) =
     "StopExc " <> show e
 
-instance Typeable e => Exception (StopExc e)
+instance {-# overlappable #-} Typeable e => Exception (StopExc e)
+
+instance Exception (StopExc Text)
 
 runStopAsExcFinal ::
-  Typeable e =>
+  Exception (StopExc e) =>
   Member (Final IO) r =>
   Sem (Stop e : r) a ->
   Sem r a
@@ -57,7 +59,7 @@ runStopAsExcFinal =
 
 -- |Run 'Stop' by throwing exceptions.
 stopToIOFinal ::
-  Typeable e =>
+  Exception (StopExc e) =>
   Member (Final IO) r =>
   Sem (Stop e : r) a ->
   Sem r (Either e a)
@@ -117,7 +119,7 @@ stopToError =
 
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToErrorIO ::
-  Typeable err =>
+  Exception (StopExc err) =>
   Members [Error err, Final IO] r =>
   Sem (Stop err : r) a ->
   Sem r a
