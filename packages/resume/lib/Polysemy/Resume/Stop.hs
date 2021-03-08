@@ -1,15 +1,15 @@
 module Polysemy.Resume.Stop where
 
+import Control.Exception (throwIO, try)
 import Control.Monad.Trans.Except (throwE)
 import Data.Typeable (typeRep)
+import qualified Text.Show
+
 import Polysemy (Final)
 import Polysemy.Error (runError, throw)
 import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
 import Polysemy.Internal (Sem(Sem), send, usingSem)
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, weave)
-import qualified Text.Show
-
-import Control.Exception (throwIO, try)
 import Polysemy.Resume.Data.Stop (Stop(Stop), stop)
 
 hush :: Either e a -> Maybe a
@@ -30,15 +30,19 @@ runStop (Sem m) =
           throwE e
 {-# INLINE runStop #-}
 
-newtype WrappedExc e =
-  WrappedExc { unwrapExc :: e }
+newtype StopExc e =
+  StopExc { unStopExc :: e }
   deriving (Typeable)
 
-instance Typeable e => Show (WrappedExc e) where
+instance {-# overlappable #-} Typeable e => Show (StopExc e) where
   show =
-    mappend "WrappedExc: " . show . typeRep
+    mappend "StopExc: " . show . typeRep
 
-instance Typeable e => Exception (WrappedExc e)
+instance Show (StopExc Text) where
+  show (StopExc e) =
+    "StopExc " <> show e
+
+instance Typeable e => Exception (StopExc e)
 
 runStopAsExcFinal ::
   Typeable e =>
@@ -48,7 +52,7 @@ runStopAsExcFinal ::
 runStopAsExcFinal =
   interpretFinal \case
     Stop e ->
-      pure (throwIO (WrappedExc e))
+      pure (throwIO (StopExc e))
 {-# INLINE runStopAsExcFinal #-}
 
 -- |Run 'Stop' by throwing exceptions.
@@ -61,7 +65,7 @@ stopToIOFinal sem =
   withStrategicToFinal @IO do
     m' <- runS (runStopAsExcFinal sem)
     s <- getInitialStateS
-    pure $ either ((<$ s) . Left . unwrapExc) (fmap Right) <$> try m'
+    pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> try m'
 {-# INLINE stopToIOFinal #-}
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
