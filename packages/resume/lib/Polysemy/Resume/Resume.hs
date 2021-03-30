@@ -1,6 +1,6 @@
 module Polysemy.Resume.Resume where
 
-import Polysemy (raiseUnder)
+import Polysemy (raiseUnder2, raiseUnder)
 import Polysemy.Error (throw)
 
 import Polysemy.Resume.Data.Resumable (Resumable)
@@ -39,6 +39,16 @@ resume sem handler =
   either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
 {-# INLINE resume #-}
 
+-- Reinterpreting version of 'resume'.
+resumeRe ::
+  ∀ err eff r a .
+  Sem (eff : r) a ->
+  (err -> Sem (Resumable err eff : r) a) ->
+  Sem (Resumable err eff : r) a
+resumeRe sem handler =
+  either handler pure =<< runStop (runAsResumable @err (raiseUnder2 sem))
+{-# INLINE resumeRe #-}
+
 -- |Flipped variant of 'resume'.
 resuming ::
   ∀ err eff r a .
@@ -49,6 +59,16 @@ resuming ::
 resuming =
   flip resume
 {-# INLINE resuming #-}
+
+-- |Flipped variant of 'resumeRe'.
+resumingRe ::
+  ∀ err eff r a .
+  (err -> Sem (Resumable err eff : r) a) ->
+  Sem (eff : r) a ->
+  Sem (Resumable err eff : r) a
+resumingRe =
+  flip resumeRe
+{-# INLINE resumingRe #-}
 
 -- |Variant of 'resume' that unconditionally recovers with a constant value.
 resumeAs ::

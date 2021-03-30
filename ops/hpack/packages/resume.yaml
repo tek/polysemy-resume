@@ -25,10 +25,6 @@ ghc-options:
   - -fspecialise-aggressively
   - -Wall
 
-when:
-  - condition: 'impl(ghc < 8.10)'
-    ghc-options: -O2
-
 tests:
   polysemy-resume-unit:
     main: Main.hs
