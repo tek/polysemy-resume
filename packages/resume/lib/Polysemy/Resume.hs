@@ -37,6 +37,7 @@ import Polysemy.Resume.Resumable (
   catchResumable,
   interpretResumable,
   interpretResumableH,
+  raiseResumable,
   resumable,
   resumableError,
   resumableFor,
@@ -60,6 +61,7 @@ import Polysemy.Resume.Resume (
 import Polysemy.Resume.Stop (
   mapStop,
   runStop,
+  showStop,
   stopEither,
   stopEitherWith,
   stopNote,
@@ -67,8 +69,6 @@ import Polysemy.Resume.Stop (
   stopToError,
   stopToIOFinal,
   )
-
-import Polysemy.Resume.Resumable (raiseResumable)
 
 -- $intro
 -- This library provides the Polysemy effects 'Resumable' and 'Stop' for the purpose of safely connecting throwing and

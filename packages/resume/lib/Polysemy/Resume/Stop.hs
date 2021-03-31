@@ -3,13 +3,13 @@ module Polysemy.Resume.Stop where
 import Control.Exception (throwIO, try)
 import Control.Monad.Trans.Except (throwE)
 import Data.Typeable (typeRep)
-import qualified Text.Show
-
 import Polysemy (Final)
 import Polysemy.Error (runError, throw)
 import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
 import Polysemy.Internal (Sem(Sem), send, usingSem)
 import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, weave)
+import qualified Text.Show
+
 import Polysemy.Resume.Data.Stop (Stop(Stop), stop)
 
 hush :: Either e a -> Maybe a
@@ -127,6 +127,7 @@ stopToErrorIO =
   either throw pure <=< stopToIOFinal
 {-# INLINE stopToErrorIO #-}
 
+-- |Map over the error type in a 'Stop'.
 mapStop ::
   ∀ e e' r a .
   Member (Stop e') r =>
@@ -141,3 +142,14 @@ mapStop f (Sem m) =
       Right (Weaving (Stop e) _ _ _ _) ->
         usingSem k (send $ Stop (f e))
 {-# INLINE mapStop #-}
+
+-- |Convert the error type in a 'Stop' to 'Text'.
+showStop ::
+  ∀ e r a .
+  Show e =>
+  Member (Stop Text) r =>
+  Sem (Stop e : r) a ->
+  Sem r a
+showStop =
+  mapStop @e @Text show
+{-# INLINE showStop #-}
