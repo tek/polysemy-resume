@@ -37,10 +37,10 @@
         hpack = project.hpack-script {};
       };
       packages = {
-        polysemy-log = project.ghc.polysemy-resume;
+        polysemy-resume = project.ghc.polysemy-resume;
       };
       checks = {
-        polysemy-log = project.ghc.polysemy-resume;
+        polysemy-resume = project.ghc.polysemy-resume;
       };
     }
   );
