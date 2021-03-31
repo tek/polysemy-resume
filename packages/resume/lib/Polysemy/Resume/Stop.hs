@@ -108,6 +108,16 @@ stopOnError =
   stopEither <=< runError
 {-# INLINE stopOnError #-}
 
+-- |Convert a program using regular 'Error's to one using 'Stop'.
+stopOnErrorWith ::
+  Member (Stop err') r =>
+  (err -> err') ->
+  Sem (Error err : r) a ->
+  Sem r a
+stopOnErrorWith f =
+  stopEitherWith f <=< runError
+{-# INLINE stopOnErrorWith #-}
+
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToError ::
   Member (Error err) r =>

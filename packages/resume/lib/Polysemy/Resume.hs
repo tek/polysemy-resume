@@ -66,6 +66,7 @@ import Polysemy.Resume.Stop (
   stopEitherWith,
   stopNote,
   stopOnError,
+  stopOnErrorWith,
   stopToError,
   stopToIOFinal,
   )
