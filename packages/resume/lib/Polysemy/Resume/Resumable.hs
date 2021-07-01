@@ -147,7 +147,7 @@ interpretResumable ::
   (∀ x r0 . eff (Sem r0) x -> Sem (Stop err : r) x) ->
   InterpreterFor (Resumable err eff) r
 interpretResumable handler =
-  interpretResumableH (liftT . handler)
+  interpretResumableH \ e -> liftT (handler e)
 {-# INLINE interpretResumable #-}
 
 -- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
