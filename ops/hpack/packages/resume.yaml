@@ -16,8 +16,8 @@ dependencies:
     version: '>= 4 && < 5'
     mixin:
       - hiding (Prelude)
-  - polysemy >= 1.5 && < 1.6
-  - relude >= 0.7 && < 1.2
+  - polysemy >= 1.5
+  - relude >= 0.7
   - transformers
 
 ghc-options:
