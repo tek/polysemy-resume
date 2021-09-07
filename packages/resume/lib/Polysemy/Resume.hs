@@ -23,6 +23,8 @@ module Polysemy.Resume (
   resumeHoistErrorAs,
   restop,
   resumeEither,
+  resumeOr,
+  resumingOr,
   resumeError,
   resumableError,
   resumableFor,
@@ -32,7 +34,7 @@ module Polysemy.Resume (
 ) where
 
 import Polysemy.Resume.Data.Resumable (Resumable, type (!!))
-import Polysemy.Resume.Data.Stop (Stop(..), stop)
+import Polysemy.Resume.Data.Stop (Stop (..), stop)
 import Polysemy.Resume.Resumable (
   catchResumable,
   interpretResumable,
@@ -55,8 +57,10 @@ import Polysemy.Resume.Resume (
   resumeHoistAs,
   resumeHoistError,
   resumeHoistErrorAs,
+  resumeOr,
   resume_,
   resuming,
+  resumingOr,
   )
 import Polysemy.Resume.Stop (
   mapStop,

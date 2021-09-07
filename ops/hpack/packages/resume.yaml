@@ -10,15 +10,14 @@ library:
     - Prelude
   generated-other-modules:
     - Paths_polysemy_resume
-
-dependencies:
-  - name: base
-    version: '>= 4 && < 5'
-    mixin:
-      - hiding (Prelude)
-  - polysemy >= 1.5
-  - relude >= 0.7
-  - transformers
+  dependencies:
+    - name: base
+      version: '>= 4 && < 5'
+      mixin:
+        - hiding (Prelude)
+    - polysemy >= 1.5
+    - relude >= 0.7
+    - transformers
 
 ghc-options:
   - -flate-specialise
@@ -35,13 +34,18 @@ tests:
       - -with-rtsopts=-N
       - -fplugin=Polysemy.Plugin
     dependencies:
-      - hedgehog
-      - polysemy-plugin
-      - polysemy-test
+      - name: base
+        version: '>= 4 && < 5'
+        mixin:
+          - hiding (Prelude)
       - name: polysemy-resume
         mixin:
           - hiding (Prelude)
           - (Polysemy.Resume.Prelude as Prelude)
+      - hedgehog
+      - polysemy
+      - polysemy-plugin
+      - polysemy-test
       - tasty
       - tasty-hedgehog
       - text

@@ -1,6 +1,6 @@
 module Polysemy.Resume.Resume where
 
-import Polysemy (raiseUnder2, raiseUnder)
+import Polysemy (raiseUnder, raiseUnder2)
 import Polysemy.Error (throw)
 
 import Polysemy.Resume.Data.Resumable (Resumable)
@@ -120,14 +120,40 @@ restop =
   resumeHoist @err id
 {-# INLINE restop #-}
 
--- |Variant of 'restop' that immediately produces an 'Either'.
+-- |Variant of 'resume' that immediately produces an 'Either'.
 resumeEither ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
   Sem (eff : r) a ->
   Sem r (Either err a)
-resumeEither =
-  runStop . restop @err . raiseUnder
+resumeEither ma =
+  resuming (pure . Left) (Right <$> ma)
+
+-- |Variant of 'resume' that takes a branch for error and success.
+-- This allows the success branch to contain other resumptions.
+resumeOr ::
+  ∀ err eff r a b .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  (a -> Sem r b) ->
+  (err -> Sem r b) ->
+  Sem r b
+resumeOr ma fb err =
+  resumeEither ma >>= \case
+    Right a -> fb a
+    Left e -> err e
+
+-- |Variant of 'resuming' that takes a branch for error and success.
+-- This allows the success branch to contain other resumptions.
+resumingOr ::
+  ∀ err eff r a b .
+  Member (Resumable err eff) r =>
+  (err -> Sem r b) ->
+  Sem (eff : r) a ->
+  (a -> Sem r b) ->
+  Sem r b
+resumingOr err ma fb =
+  resumeOr ma fb err
 
 -- |Variant of 'resume' that propagates the error to an 'Error' effect after applying a function.
 resumeHoistError ::

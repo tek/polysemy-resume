@@ -1,13 +1,13 @@
 module Polysemy.Resume.Resumable where
 
-
 import Polysemy (Final, Tactical)
-import Polysemy.Error (Error(Throw), catchJust)
-import Polysemy.Internal (Sem(Sem, runSem), liftSem, raise, raiseUnder, send, usingSem)
+import Polysemy.Error (Error (Throw), catchJust)
+import Polysemy.Internal (Sem (Sem, runSem), liftSem, raise, raiseUnder, send, usingSem)
 import Polysemy.Internal.CustomErrors (FirstOrder)
 import Polysemy.Internal.Tactics (liftT, runTactics)
-import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, inj, injWeaving, weave)
-import Polysemy.Resume.Data.Resumable (Resumable(..))
+import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, inj, injWeaving, weave)
+
+import Polysemy.Resume.Data.Resumable (Resumable (..))
 import Polysemy.Resume.Data.Stop (Stop, stop)
 import Polysemy.Resume.Stop (StopExc, runStop, stopOnError, stopToIOFinal)
 

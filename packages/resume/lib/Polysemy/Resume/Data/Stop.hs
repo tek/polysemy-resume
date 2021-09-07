@@ -1,3 +1,4 @@
+-- |Description: Internal
 module Polysemy.Resume.Data.Stop where
 
 import Polysemy (makeSem)

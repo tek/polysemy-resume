@@ -174,15 +174,13 @@ test-suite polysemy-resume-unit
   build-depends:
       base ==4.*
     , hedgehog
-    , polysemy >=1.5
+    , polysemy
     , polysemy-plugin
     , polysemy-resume
     , polysemy-test
-    , relude >=0.7
     , tasty
     , tasty-hedgehog
     , text
-    , transformers
   mixins:
       base hiding (Prelude)
     , polysemy-resume hiding (Prelude)
