@@ -28,7 +28,7 @@ runStop (Sem m) =
           ExceptT $ k $ weave (Right ()) (either (pure . Left) runStop) hush x
         Right (Weaving (Stop e) _ _ _ _) ->
           throwE e
-{-# INLINE runStop #-}
+{-# inline runStop #-}
 
 newtype StopExc e =
   StopExc { unStopExc :: e }
@@ -55,7 +55,7 @@ runStopAsExcFinal =
   interpretFinal \case
     Stop e ->
       pure (throwIO (StopExc e))
-{-# INLINE runStopAsExcFinal #-}
+{-# inline runStopAsExcFinal #-}
 
 -- |Run 'Stop' by throwing exceptions.
 stopToIOFinal ::
@@ -68,7 +68,7 @@ stopToIOFinal sem =
     m' <- runS (runStopAsExcFinal sem)
     s <- getInitialStateS
     pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> try m'
-{-# INLINE stopToIOFinal #-}
+{-# inline stopToIOFinal #-}
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
 stopEitherWith ::
@@ -78,7 +78,7 @@ stopEitherWith ::
   Sem r a
 stopEitherWith f =
   either (stop . f) pure
-{-# INLINE stopEitherWith #-}
+{-# inline stopEitherWith #-}
 
 -- |Stop if the argument is 'Left'.
 stopEither ::
@@ -87,7 +87,7 @@ stopEither ::
   Sem r a
 stopEither =
   stopEitherWith id
-{-# INLINE stopEither #-}
+{-# inline stopEither #-}
 
 -- |Stop with the supplied error if the argument is 'Nothing'.
 stopNote ::
@@ -97,7 +97,7 @@ stopNote ::
   Sem r a
 stopNote err =
   maybe (stop err) pure
-{-# INLINE stopNote #-}
+{-# inline stopNote #-}
 
 -- |Convert a program using regular 'Error's to one using 'Stop'.
 stopOnError ::
@@ -106,7 +106,7 @@ stopOnError ::
   Sem r a
 stopOnError =
   stopEither <=< runError
-{-# INLINE stopOnError #-}
+{-# inline stopOnError #-}
 
 -- |Convert a program using regular 'Error's to one using 'Stop'.
 stopOnErrorWith ::
@@ -116,7 +116,7 @@ stopOnErrorWith ::
   Sem r a
 stopOnErrorWith f =
   stopEitherWith f <=< runError
-{-# INLINE stopOnErrorWith #-}
+{-# inline stopOnErrorWith #-}
 
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToError ::
@@ -125,7 +125,7 @@ stopToError ::
   Sem r a
 stopToError =
   either throw pure <=< runStop
-{-# INLINE stopToError #-}
+{-# inline stopToError #-}
 
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToErrorIO ::
@@ -135,7 +135,7 @@ stopToErrorIO ::
   Sem r a
 stopToErrorIO =
   either throw pure <=< stopToIOFinal
-{-# INLINE stopToErrorIO #-}
+{-# inline stopToErrorIO #-}
 
 -- |Map over the error type in a 'Stop'.
 mapStop ::
@@ -151,7 +151,7 @@ mapStop f (Sem m) =
         k (hoist (mapStop f) x)
       Right (Weaving (Stop e) _ _ _ _) ->
         usingSem k (send $ Stop (f e))
-{-# INLINE mapStop #-}
+{-# inline mapStop #-}
 
 -- |Convert the error type in a 'Stop' to 'Text'.
 showStop ::
@@ -162,4 +162,4 @@ showStop ::
   Sem r a
 showStop =
   mapStop @e @Text show
-{-# INLINE showStop #-}
+{-# inline showStop #-}

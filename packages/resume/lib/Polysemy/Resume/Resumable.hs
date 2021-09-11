@@ -21,7 +21,7 @@ distribEither initialState result =
   result . \case
     Right fa -> Right <$> fa
     Left err -> Left err <$ initialState
-{-# INLINE distribEither #-}
+{-# inline distribEither #-}
 
 -- |Convert a bare interpreter for @eff@, which (potentially) uses 'Stop' to signal errors, into an interpreter for
 -- 'Resumable'.
@@ -60,24 +60,26 @@ resumable interpreter (Sem m) =
             runStop $ interpreter $ liftSem $ weave s (raise . raise . wv) ins (injWeaving e)
       Left g ->
         k g
-{-# INLINE resumable #-}
+{-# inline resumable #-}
 
 -- |Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
 raiseResumable ::
   ∀ (err :: *) (eff :: Effect) (r :: EffectRow) .
   InterpreterFor eff r ->
   InterpreterFor (Resumable err eff) r
-raiseResumable interpreter (Sem m) =
-  Sem \ k -> m \ u ->
-    case decomp (hoist (raiseResumable interpreter) u) of
-      Right (Weaving (Resumable e) s wv ex ins) ->
-        distribEither s ex <$> runSem resultFromEff k
-        where
-          resultFromEff =
-            fmap Right $ interpreter $ liftSem $ weave s (raise . wv) ins (injWeaving e)
-      Left g ->
-        k g
-{-# INLINE raiseResumable #-}
+raiseResumable interpreter =
+  interpreter . normalize . raiseUnder
+  where
+    normalize :: InterpreterFor (Resumable err eff) (eff : r)
+    normalize (Sem m) =
+      Sem \ k -> m \ u ->
+        case decomp (hoist normalize u) of
+          Right (Weaving (Resumable e) s wv ex ins) ->
+            ex . fmap Right <$> (usingSem k $ liftSem $ weave s wv ins (injWeaving e))
+          Left g ->
+            k g
+    {-# inline normalize #-}
+{-# inline raiseResumable #-}
 
 -- |Like 'resumable', but use exceptions instead of 'ExceptT'.
 resumableIO ::
@@ -96,7 +98,7 @@ resumableIO interpreter (Sem m) =
             stopToIOFinal $ interpreter $ liftSem $ weave s (raise . raise . wv) ins (injWeaving e)
       Left g ->
         k g
-{-# INLINE resumableIO #-}
+{-# inline resumableIO #-}
 
 -- |Like 'interpretResumable', but for higher-order effects.
 interpretResumableH ::
@@ -122,7 +124,7 @@ interpretResumableH handler (Sem m) =
           exFinal = exOuter . \case
             Right (getCompose -> a) -> Right . ex <$> a
             Left err -> Left err <$ sOuter
-{-# INLINE interpretResumableH #-}
+{-# inline interpretResumableH #-}
 
 -- |Create an interpreter for @'Resumable' err eff@ by supplying a handler function for @eff@, analogous to
 -- 'Polysemy.interpret'.
@@ -148,7 +150,7 @@ interpretResumable ::
   InterpreterFor (Resumable err eff) r
 interpretResumable handler =
   interpretResumableH \ e -> liftT (handler e)
-{-# INLINE interpretResumable #-}
+{-# inline interpretResumable #-}
 
 -- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
 resumableError ::
@@ -157,7 +159,7 @@ resumableError ::
   InterpreterFor (Resumable err eff) r
 resumableError interpreter =
   resumable (stopOnError . interpreter . raiseUnder)
-{-# INLINE resumableError #-}
+{-# inline resumableError #-}
 
 -- |Convert an interpreter for @eff@ that throws errors of type @err@ into a @Resumable@, but limiting the errors
 -- handled by consumers to the type @handled@, which rethrowing 'Error's of type @unhandled@.
@@ -206,7 +208,7 @@ resumableOr canHandle interpreter (Sem m) =
             runStop $ interpreter $ liftSem $ weave s (raise . raise . wv) ins (injWeaving e)
       Left g ->
         k g
-{-# INLINE resumableOr #-}
+{-# inline resumableOr #-}
 
 -- |Variant of 'resumableOr' that uses 'Maybe' and rethrows the original error.
 resumableFor ::
@@ -220,7 +222,7 @@ resumableFor canHandle =
   where
     canHandle' err =
       maybeToRight err (canHandle err)
-{-# INLINE resumableFor #-}
+{-# inline resumableFor #-}
 
 -- |Reinterpreting variant of 'resumableFor'.
 catchResumable ::
@@ -238,7 +240,7 @@ catchResumable canHandle (Sem m) =
             catchJust canHandle (fmap Right $ liftSem $ weave s wv ins (injWeaving e)) (pure . Left)
       Left g ->
         k g
-{-# INLINE catchResumable #-}
+{-# inline catchResumable #-}
 
 -- |Interpret an effect @eff@ by wrapping it in @Resumable@ and @Stop@ and leaving the rest up to the user.
 runAsResumable ::
@@ -252,4 +254,4 @@ runAsResumable (Sem m) =
         runSem (either (stop @err) pure =<< send (Resumable wav)) k
       Left g ->
         k g
-{-# INLINE runAsResumable #-}
+{-# inline runAsResumable #-}

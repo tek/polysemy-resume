@@ -37,7 +37,7 @@ resume ::
   Sem r a
 resume sem handler =
   either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
-{-# INLINE resume #-}
+{-# inline resume #-}
 
 -- Reinterpreting version of 'resume'.
 resumeRe ::
@@ -47,7 +47,7 @@ resumeRe ::
   Sem (Resumable err eff : r) a
 resumeRe sem handler =
   either handler pure =<< runStop (runAsResumable @err (raiseUnder2 sem))
-{-# INLINE resumeRe #-}
+{-# inline resumeRe #-}
 
 -- |Flipped variant of 'resume'.
 resuming ::
@@ -58,7 +58,7 @@ resuming ::
   Sem r a
 resuming =
   flip resume
-{-# INLINE resuming #-}
+{-# inline resuming #-}
 
 -- |Flipped variant of 'resumeRe'.
 resumingRe ::
@@ -68,7 +68,7 @@ resumingRe ::
   Sem (Resumable err eff : r) a
 resumingRe =
   flip resumeRe
-{-# INLINE resumingRe #-}
+{-# inline resumingRe #-}
 
 -- |Variant of 'resume' that unconditionally recovers with a constant value.
 resumeAs ::
@@ -79,7 +79,7 @@ resumeAs ::
   Sem r a
 resumeAs a =
   resuming @err \ _ -> pure a
-{-# INLINE resumeAs #-}
+{-# inline resumeAs #-}
 
 -- |Convenience specialization of 'resume' that silently discards errors for void programs.
 resume_ ::
@@ -99,7 +99,7 @@ resumeHoist ::
   Sem r a
 resumeHoist f =
   resuming (stop . f)
-{-# INLINE resumeHoist #-}
+{-# inline resumeHoist #-}
 
 -- |Variant of 'resumeHoist' that uses a constant value.
 resumeHoistAs ::
@@ -109,7 +109,7 @@ resumeHoistAs ::
   InterpreterFor eff r
 resumeHoistAs err =
   resumeHoist @err (const err)
-{-# INLINE resumeHoistAs #-}
+{-# inline resumeHoistAs #-}
 
 -- |Variant of 'resumeHoist' that uses the unchanged error.
 restop ::
@@ -118,7 +118,7 @@ restop ::
   InterpreterFor eff r
 restop =
   resumeHoist @err id
-{-# INLINE restop #-}
+{-# inline restop #-}
 
 -- |Variant of 'resume' that immediately produces an 'Either'.
 resumeEither ::
@@ -164,7 +164,7 @@ resumeHoistError ::
   Sem r a
 resumeHoistError f =
   resuming (throw . f)
-{-# INLINE resumeHoistError #-}
+{-# inline resumeHoistError #-}
 
 -- |Variant of 'resumeHoistError' that uses the unchanged error.
 resumeHoistErrorAs ::
@@ -175,7 +175,7 @@ resumeHoistErrorAs ::
   Sem r a
 resumeHoistErrorAs err =
   resumeHoistError @err (const err)
-{-# INLINE resumeHoistErrorAs #-}
+{-# inline resumeHoistErrorAs #-}
 
 -- |Variant of 'resumeHoistError' that uses the unchanged error.
 resumeError ::
@@ -185,4 +185,4 @@ resumeError ::
   Sem r a
 resumeError =
   resumeHoistError @err id
-{-# INLINE resumeError #-}
+{-# inline resumeError #-}

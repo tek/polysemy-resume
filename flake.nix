@@ -33,5 +33,6 @@
     overrides = [compat common main];
     compatOverrides = { all = compat; ghc901 = [common compat901]; };
     versionFile = "ops/hpack/shared/meta.yaml";
+    ghcid.easy-hls = false;
   };
 }
