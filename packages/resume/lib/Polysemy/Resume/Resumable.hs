@@ -11,6 +11,15 @@ import Polysemy.Resume.Data.Resumable (Resumable (..))
 import Polysemy.Resume.Data.Stop (Stop, stop)
 import Polysemy.Resume.Stop (StopExc, runStop, stopOnError, stopToIOFinal)
 
+type InterpreterTrans' eff eff' r r' =
+  ∀ a b .
+  (Sem (eff' : r') a -> Sem r b) ->
+  Sem (eff : r) a ->
+  Sem r b
+
+type InterpreterTrans eff eff' r =
+  InterpreterTrans' eff eff' r r
+
 distribEither ::
   Functor f =>
   f () ->
@@ -60,13 +69,15 @@ resumable interpreter (Sem m) =
             runStop $ interpreter $ liftSem $ weave s (raise . raise . wv) ins (injWeaving e)
       Left g ->
         k g
+  -- where
+  --   int =
+  --     runSem . interpreter
 {-# inline resumable #-}
 
 -- |Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
 raiseResumable ::
   ∀ (err :: *) (eff :: Effect) (r :: EffectRow) .
-  InterpreterFor eff r ->
-  InterpreterFor (Resumable err eff) r
+  InterpreterTrans (Resumable err eff) eff r
 raiseResumable interpreter =
   interpreter . normalize . raiseUnder
   where
