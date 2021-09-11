@@ -39,6 +39,17 @@ resume sem handler =
   either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
 {-# inline resume #-}
 
+-- |Operator version of 'resume'.
+(!!) ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  (err -> Sem r a) ->
+  Sem r a
+(!!) =
+  resume
+{-# inline (!!) #-}
+
 -- Reinterpreting version of 'resume'.
 resumeRe ::
   ∀ err eff r a .
@@ -80,6 +91,16 @@ resumeAs ::
 resumeAs a =
   resuming @err \ _ -> pure a
 {-# inline resumeAs #-}
+
+-- |Operator version of 'resumeAs'.
+(<!) ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  a ->
+  Sem (eff : r) a ->
+  Sem r a
+(<!) =
+  resumeAs @err
 
 -- |Convenience specialization of 'resume' that silently discards errors for void programs.
 resume_ ::
