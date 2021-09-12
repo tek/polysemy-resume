@@ -17,6 +17,11 @@ module Polysemy.Resume (
   -- * Various Combinators
   resumeAs,
   (<!),
+  (!>),
+  resumeWith,
+  (!>>),
+  resumingWith,
+  (<<!),
   resume_,
   resumeHoist,
   resumeHoistAs,
@@ -50,8 +55,6 @@ import Polysemy.Resume.Resumable (
   runAsResumable,
   )
 import Polysemy.Resume.Resume (
-  (!!),
-  (<!),
   restop,
   resume,
   resumeAs,
@@ -62,9 +65,16 @@ import Polysemy.Resume.Resume (
   resumeHoistError,
   resumeHoistErrorAs,
   resumeOr,
+  resumeWith,
   resume_,
   resuming,
   resumingOr,
+  resumingWith,
+  (!!),
+  (!>),
+  (!>>),
+  (<!),
+  (<<!),
   )
 import Polysemy.Resume.Stop (
   mapStop,

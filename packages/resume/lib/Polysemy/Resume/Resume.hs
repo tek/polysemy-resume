@@ -102,6 +102,16 @@ resumeAs a =
 (<!) =
   resumeAs @err
 
+-- |Operator version of 'resumeAs', flipped version of '(<!)'.
+(!>) ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  a ->
+  Sem r a
+(!>) =
+  flip (resumeAs @err)
+
 -- |Convenience specialization of 'resume' that silently discards errors for void programs.
 resume_ ::
   ∀ err eff r .
@@ -110,6 +120,50 @@ resume_ ::
   Sem r ()
 resume_ =
   resumeAs @err ()
+
+-- |Variant of 'resume' that unconditionally recovers with an action.
+resumeWith ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  Sem r a ->
+  Sem r a
+resumeWith ma ma' =
+  resume @err ma (const ma')
+{-# inline resumeWith #-}
+
+-- |Operator variant of 'resumeWith'.
+(!>>) ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  Sem r a ->
+  Sem r a
+(!>>) =
+  resumeWith @err
+{-# inline (!>>) #-}
+
+-- |Variant of 'resuming' that unconditionally recovers with an action.
+resumingWith ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem r a ->
+  Sem (eff : r) a ->
+  Sem r a
+resumingWith ma' ma =
+  resume @err ma (const ma')
+{-# inline resumingWith #-}
+
+-- |Operator variant of 'resumingWith'.
+(<<!) ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem r a ->
+  Sem (eff : r) a ->
+  Sem r a
+(<<!) =
+  resumingWith @err
+{-# inline (<<!) #-}
 
 -- |Variant of 'resume' that propagates the error to another 'Stop' effect after applying a function.
 resumeHoist ::
