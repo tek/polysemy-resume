@@ -5,6 +5,7 @@ module Polysemy.Resume (
   module Polysemy.Resume.Data.Resumable,
   -- * Resuming a Stopped Computation
   resume,
+  (!!),
   interpretResumable,
   interpretResumableH,
   resumable,
@@ -15,6 +16,7 @@ module Polysemy.Resume (
   resumableOr,
   -- * Various Combinators
   resumeAs,
+  (<!),
   resume_,
   resumeHoist,
   resumeHoistAs,
@@ -48,6 +50,8 @@ import Polysemy.Resume.Resumable (
   runAsResumable,
   )
 import Polysemy.Resume.Resume (
+  (!!),
+  (<!),
   restop,
   resume,
   resumeAs,
