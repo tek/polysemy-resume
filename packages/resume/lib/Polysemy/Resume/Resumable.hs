@@ -56,7 +56,7 @@ distribEither initialState result =
 -- >>> run $ resumable interpretStopper (interpretResumer mainProgram)
 -- 237
 resumable ::
-  ∀ (err :: *) (eff :: Effect) (r :: EffectRow) .
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
   InterpreterFor eff (Stop err : r) ->
   InterpreterFor (Resumable err eff) r
 resumable interpreter (Sem m) =
@@ -76,7 +76,7 @@ resumable interpreter (Sem m) =
 
 -- |Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
 raiseResumable ::
-  ∀ (err :: *) (eff :: Effect) (r :: EffectRow) .
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
   InterpreterTrans (Resumable err eff) eff r
 raiseResumable interpreter =
   interpreter . normalize . raiseUnder
@@ -94,7 +94,7 @@ raiseResumable interpreter =
 
 -- |Like 'resumable', but use exceptions instead of 'ExceptT'.
 resumableIO ::
-  ∀ (err :: *) (eff :: Effect) (r :: EffectRow) .
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
   Exception (StopExc err) =>
   Member (Final IO) r =>
   InterpreterFor eff (Stop err : r) ->
@@ -113,7 +113,7 @@ resumableIO interpreter (Sem m) =
 
 -- |Like 'interpretResumable', but for higher-order effects.
 interpretResumableH ::
-  ∀ (err :: *) (eff :: Effect) (r :: EffectRow) .
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
   -- |This handler function has @'Stop' err@ in its stack, allowing it to absorb errors.
   (∀ x r0 . eff (Sem r0) x -> Tactical (Resumable err eff) (Sem r0) (Stop err : r) x) ->
   InterpreterFor (Resumable err eff) r
@@ -155,7 +155,7 @@ interpretResumableH handler (Sem m) =
 -- >>> run $ interpretStopperResumable (interpretResumer mainProgram)
 -- 237
 interpretResumable ::
-  ∀ (err :: *) (eff :: Effect) r .
+  ∀ (err :: Type) (eff :: Effect) r .
   FirstOrder eff "interpretResumable" =>
   (∀ x r0 . eff (Sem r0) x -> Sem (Stop err : r) x) ->
   InterpreterFor (Resumable err eff) r
@@ -165,7 +165,7 @@ interpretResumable handler =
 
 -- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
 resumableError ::
-  ∀ (err :: *) (eff :: Effect) r .
+  ∀ (err :: Type) (eff :: Effect) r .
   InterpreterFor eff (Error err : Stop err : r) ->
   InterpreterFor (Resumable err eff) r
 resumableError interpreter =
@@ -199,7 +199,7 @@ resumableError interpreter =
 -- >>> runError (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
 -- Right 39
 resumableOr ::
-  ∀ (err :: *) (eff :: Effect) unhandled handled r .
+  ∀ (err :: Type) (eff :: Effect) unhandled handled r .
   Member (Error unhandled) r =>
   (err -> Either unhandled handled) ->
   InterpreterFor eff (Stop err : r) ->
@@ -223,7 +223,7 @@ resumableOr canHandle interpreter (Sem m) =
 
 -- |Variant of 'resumableOr' that uses 'Maybe' and rethrows the original error.
 resumableFor ::
-  ∀ (err :: *) (eff :: Effect) handled r .
+  ∀ (err :: Type) (eff :: Effect) handled r .
   Member (Error err) r =>
   (err -> Maybe handled) ->
   InterpreterFor eff (Stop err : r) ->
@@ -237,7 +237,7 @@ resumableFor canHandle =
 
 -- |Reinterpreting variant of 'resumableFor'.
 catchResumable ::
-  ∀ (err :: *) (eff :: Effect) handled r .
+  ∀ (err :: Type) (eff :: Effect) handled r .
   Members [eff, Error err] r =>
   (err -> Maybe handled) ->
   InterpreterFor (Resumable handled eff) r
@@ -255,7 +255,7 @@ catchResumable canHandle (Sem m) =
 
 -- |Interpret an effect @eff@ by wrapping it in @Resumable@ and @Stop@ and leaving the rest up to the user.
 runAsResumable ::
-  ∀ (err :: *) (eff :: Effect) r .
+  ∀ (err :: Type) (eff :: Effect) r .
   Members [Resumable err eff, Stop err] r =>
   InterpreterFor eff r
 runAsResumable (Sem m) =

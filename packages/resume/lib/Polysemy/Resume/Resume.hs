@@ -40,6 +40,8 @@ resume sem handler =
 {-# inline resume #-}
 
 -- |Operator version of 'resume'.
+--
+-- @since 0.2.0.0
 (!!) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -93,6 +95,8 @@ resumeAs a =
 {-# inline resumeAs #-}
 
 -- |Operator version of 'resumeAs'.
+--
+-- @since 0.2.0.0
 (<!) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -103,6 +107,8 @@ resumeAs a =
   resumeAs @err
 
 -- |Operator version of 'resumeAs', flipped version of '(<!)'.
+--
+-- @since 0.2.0.0
 (!>) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -122,6 +128,8 @@ resume_ =
   resumeAs @err ()
 
 -- |Variant of 'resume' that unconditionally recovers with an action.
+--
+-- @since 0.2.0.0
 resumeWith ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -133,6 +141,8 @@ resumeWith ma ma' =
 {-# inline resumeWith #-}
 
 -- |Operator variant of 'resumeWith'.
+--
+-- @since 0.2.0.0
 (!>>) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -144,6 +154,8 @@ resumeWith ma ma' =
 {-# inline (!>>) #-}
 
 -- |Variant of 'resuming' that unconditionally recovers with an action.
+--
+-- @since 0.2.0.0
 resumingWith ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -155,6 +167,8 @@ resumingWith ma' ma =
 {-# inline resumingWith #-}
 
 -- |Operator variant of 'resumingWith'.
+--
+-- @since 0.2.0.0
 (<<!) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -206,6 +220,8 @@ resumeEither ma =
 
 -- |Variant of 'resume' that takes a branch for error and success.
 -- This allows the success branch to contain other resumptions.
+--
+-- @since 0.2.0.0
 resumeOr ::
   ∀ err eff r a b .
   Member (Resumable err eff) r =>
@@ -220,6 +236,8 @@ resumeOr ma fb err =
 
 -- |Variant of 'resuming' that takes a branch for error and success.
 -- This allows the success branch to contain other resumptions.
+--
+-- @since 0.2.0.0
 resumingOr ::
   ∀ err eff r a b .
   Member (Resumable err eff) r =>
