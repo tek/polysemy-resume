@@ -12,8 +12,9 @@ import Polysemy.Resume.Stop (runStop)
 -- interpreter used for @eff@ will be caught here and handled by the @handler@ argument.
 -- This is similar to 'Polysemy.Error.catch' with the additional guarantee that the error will have to be explicitly
 -- matched, therefore preventing accidental failure to handle an error and bubbling it up to @main@.
--- It also imposes a membership of @Resumable err eff@ on the program, requiring the interpreter for @eff@ to be adapted
--- with 'Polysemy.Resume.Resumable.resumable'.
+-- It also imposes a membership of @Resumable err eff@ on the program, requiring the interpreter for @eff@ to be
+-- constructed with 'Polysemy.Resume.Resumable.interpretResumable' or adapted with
+-- 'Polysemy.Resume.Resumable.resumable'.
 --
 -- @
 -- data Resumer :: Effect where

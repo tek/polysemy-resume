@@ -6,14 +6,14 @@ module Polysemy.Resume (
   -- * Resuming a Stopped Computation
   resume,
   (!!),
-  interpretResumable,
+  -- interpretResumable,
   interpretResumableH,
   resumable,
-  raiseResumable,
-  resumableIO,
+  -- raiseResumable,
+  -- resumableIO,
   -- * Partial Handlers
   -- $partial
-  resumableOr,
+  -- resumableOr,
   -- * Various Combinators
   resumeAs,
   (<!),
@@ -33,25 +33,25 @@ module Polysemy.Resume (
   resumeOr,
   resumingOr,
   resumeError,
-  resumableError,
+  -- resumableError,
   resumableFor,
   runAsResumable,
-  catchResumable,
+  -- catchResumable,
   module Polysemy.Resume.Stop,
 ) where
 
 import Polysemy.Resume.Data.Resumable (Resumable, type (!!))
 import Polysemy.Resume.Data.Stop (Stop (..), stop)
 import Polysemy.Resume.Resumable (
-  catchResumable,
-  interpretResumable,
-  interpretResumableH,
-  raiseResumable,
+  -- catchResumable,
+  -- interpretResumable,
+  -- raiseResumable,
   resumable,
-  resumableError,
+  -- resumableError,
   resumableFor,
-  resumableIO,
-  resumableOr,
+  -- resumableIO,
+  -- resumableOr,
+  interpretResumableH,
   runAsResumable,
   )
 import Polysemy.Resume.Resume (

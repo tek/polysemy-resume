@@ -23,6 +23,8 @@ ghc-options:
   - -flate-specialise
   - -fspecialise-aggressively
   - -Wall
+  - -Wredundant-constraints
+  - -Wunused-packages
 
 tests:
   polysemy-resume-unit:

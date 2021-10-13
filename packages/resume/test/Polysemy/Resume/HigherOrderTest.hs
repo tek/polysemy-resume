@@ -1,22 +1,18 @@
-{-# options_ghc -Wno-all #-}
-
 module Polysemy.Resume.HigherOrderTest where
 
-import Polysemy (makeSem, pureT, raise, raiseUnder, runT)
+import Polysemy (makeSem, raiseUnder, runH')
 import Polysemy.AtomicState (
   AtomicState,
   atomicModify,
   runAtomicStateTVar,
   )
 import Polysemy.Resource (Resource, finally)
-import Polysemy.Resume (type (!!))
-import Polysemy.Resume.Data.Stop (stop)
-import Polysemy.Resume.Resumable (interpretResumable, interpretResumableH)
-import Polysemy.Resume.Resume (restop, resume)
 import Polysemy.Test (UnitTest, runTestAuto, (===))
 
-import Polysemy.Resume.Data.Stop (Stop)
-import Polysemy.Resume.Stop (stopNote)
+import Polysemy.Resume.Data.Resumable (type (!!))
+import Polysemy.Resume.Resumable (interpretResumableH)
+import Polysemy.Resume.Resume (resume)
+import Polysemy.Resume.Data.Stop (stop)
 
 data Eff :: Effect where
   Nest :: m a -> Eff m a
@@ -36,17 +32,16 @@ interpretEffNested =
     Nest _ ->
       stop "no"
     Result ->
-      pureT 2
+      pure 2
 
 interpretEff ::
   InterpreterFor (Eff !! Text) r
 interpretEff =
   interpretResumableH \case
-    Nest ma -> do
-      sem <- runT ma
-      raise (interpretEffNested sem)
+    Nest ma ->
+      raiseUnder (interpretEffNested (runH' ma))
     Result ->
-      pureT 1
+      pure 1
 
 interpretEffFinally ::
   Members [Resource, AtomicState Int] r =>
@@ -55,7 +50,7 @@ interpretEffFinally sem =
   interpretEff (finally sem log)
   where
     log =
-      atomicModify (1 +)
+      atomicModify ((1 :: Int) +)
 
 -- interpretOff ::
 --   Member (Eff !! Text) r =>
@@ -67,7 +62,7 @@ test_switchInterpreter :: UnitTest
 test_switchInterpreter =
   runTestAuto do
     tv <- newTVarIO 0
-    (2 ===) =<< runAtomicStateTVar tv (interpretEffFinally (resume (nest (result >> result)) \ _ -> pure 3))
+    (2 ===) =<< runAtomicStateTVar tv (interpretEffFinally (resume (nest (result >> result)) \ _ -> pure (3 :: Int)))
     (1 ===) =<< readTVarIO tv
     (3 ===) =<< interpretEff (resume (nest (nest result)) \ _ -> pure 3)
     (1 ===) =<< interpretEff (resume result \ _ -> pure 3)

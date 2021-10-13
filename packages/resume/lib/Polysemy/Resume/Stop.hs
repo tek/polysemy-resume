@@ -3,14 +3,14 @@ module Polysemy.Resume.Stop where
 import Control.Exception (throwIO, try)
 import Control.Monad.Trans.Except (throwE)
 import Data.Typeable (typeRep)
-import Polysemy (Final)
+import Polysemy (Final, embed)
 import Polysemy.Error (runError, throw)
-import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
-import Polysemy.Internal (Sem(Sem), send, usingSem)
-import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, weave)
+import Polysemy.Final (controlF, interpretFinal)
+import Polysemy.Internal (Sem (Sem), send, usingSem)
+import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, liftHandlerWithNat)
 import qualified Text.Show
 
-import Polysemy.Resume.Data.Stop (Stop(Stop), stop)
+import Polysemy.Resume.Data.Stop (Stop (Stop), stop)
 
 hush :: Either e a -> Maybe a
 hush (Right a) = Just a
@@ -25,8 +25,8 @@ runStop (Sem m) =
     runExceptT $ m \ u ->
       case decomp u of
         Left x ->
-          ExceptT $ k $ weave (Right ()) (either (pure . Left) runStop) hush x
-        Right (Weaving (Stop e) _ _ _ _) ->
+          liftHandlerWithNat (ExceptT . runStop) k x
+        Right (Weaving (Stop e) _ _ _) ->
           throwE e
 {-# inline runStop #-}
 
@@ -52,9 +52,9 @@ runStopAsExcFinal ::
   Sem (Stop e : r) a ->
   Sem r a
 runStopAsExcFinal =
-  interpretFinal \case
+  interpretFinal @IO \case
     Stop e ->
-      pure (throwIO (StopExc e))
+      embed (throwIO (StopExc e))
 {-# inline runStopAsExcFinal #-}
 
 -- |Run 'Stop' by throwing exceptions.
@@ -64,10 +64,12 @@ stopToIOFinal ::
   Sem (Stop e : r) a ->
   Sem r (Either e a)
 stopToIOFinal sem =
-  withStrategicToFinal @IO do
-    m' <- runS (runStopAsExcFinal sem)
-    s <- getInitialStateS
-    pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> try m'
+  controlF @IO \ lower ->
+    try (lower (runStopAsExcFinal sem)) >>= \case
+      Right ta ->
+        pure (Right <$> ta)
+      Left (StopExc e) ->
+        lower (pure (Left e))
 {-# inline stopToIOFinal #-}
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
@@ -149,7 +151,7 @@ mapStop f (Sem m) =
     case decomp u of
       Left x ->
         k (hoist (mapStop f) x)
-      Right (Weaving (Stop e) _ _ _ _) ->
+      Right (Weaving (Stop e) _ _ _) ->
         usingSem k (send $ Stop (f e))
 {-# inline mapStop #-}
 
