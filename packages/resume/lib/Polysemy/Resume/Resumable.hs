@@ -69,9 +69,6 @@ resumable interpreter (Sem m) =
             runStop $ interpreter $ liftSem $ weave s (raise . raise . wv) ins (injWeaving e)
       Left g ->
         k g
-  -- where
-  --   int =
-  --     runSem . interpreter
 {-# inline resumable #-}
 
 -- |Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
