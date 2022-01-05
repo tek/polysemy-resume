@@ -93,7 +93,7 @@ library
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-  ghc-options: -flate-specialise -fspecialise-aggressively -Wall
+  ghc-options: -Wall -Wredundant-constraints -Wunused-type-patterns -Widentities -Wunused-packages
   build-depends:
       base ==4.*
     , polysemy >=1.5
@@ -170,7 +170,7 @@ test-suite polysemy-resume-unit
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-  ghc-options: -flate-specialise -fspecialise-aggressively -Wall -threaded -rtsopts -with-rtsopts=-N -fplugin=Polysemy.Plugin
+  ghc-options: -Wall -Wredundant-constraints -Wunused-type-patterns -Widentities -Wunused-packages -threaded -rtsopts -with-rtsopts=-N -fplugin=Polysemy.Plugin
   build-depends:
       base ==4.*
     , hedgehog

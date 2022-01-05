@@ -20,9 +20,11 @@ library:
     - transformers
 
 ghc-options:
-  - -flate-specialise
-  - -fspecialise-aggressively
   - -Wall
+  - -Wredundant-constraints
+  - -Wunused-type-patterns
+  - -Widentities
+  - -Wunused-packages
 
 tests:
   polysemy-resume-unit:

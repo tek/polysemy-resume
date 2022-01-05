@@ -1,6 +1,6 @@
 module Polysemy.Resume.Resume where
 
-import Polysemy (raiseUnder, raiseUnder2)
+import Polysemy (InterpretersFor, raiseUnder2)
 import Polysemy.Error (throw)
 
 import Polysemy.Resume.Data.Resumable (Resumable)
@@ -32,11 +32,11 @@ import Polysemy.Resume.Stop (runStop)
 resume ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   (err -> Sem r a) ->
   Sem r a
 resume sem handler =
-  either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
+  either handler pure =<< runStop (runAsResumable @err sem)
 {-# inline resume #-}
 
 -- |Operator version of 'resume'.
@@ -45,7 +45,7 @@ resume sem handler =
 (!!) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   (err -> Sem r a) ->
   Sem r a
 (!!) =
@@ -67,7 +67,7 @@ resuming ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
   (err -> Sem r a) ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resuming =
   flip resume
@@ -88,7 +88,7 @@ resumeAs ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
   a ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resumeAs a =
   resuming @err \ _ -> pure a
@@ -101,7 +101,7 @@ resumeAs a =
   ∀ err eff r a .
   Member (Resumable err eff) r =>
   a ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 (<!) =
   resumeAs @err
@@ -112,7 +112,7 @@ resumeAs a =
 (!>) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   a ->
   Sem r a
 (!>) =
@@ -122,7 +122,7 @@ resumeAs a =
 resume_ ::
   ∀ err eff r .
   Member (Resumable err eff) r =>
-  Sem (eff : r) () ->
+  Sem (eff : Stop err : r) () ->
   Sem r ()
 resume_ =
   resumeAs @err ()
@@ -133,7 +133,7 @@ resume_ =
 resumeWith ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a ->
   Sem r a
 resumeWith ma ma' =
@@ -146,7 +146,7 @@ resumeWith ma ma' =
 (!>>) ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a ->
   Sem r a
 (!>>) =
@@ -160,7 +160,7 @@ resumingWith ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
   Sem r a ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resumingWith ma' ma =
   resume @err ma (const ma')
@@ -173,7 +173,7 @@ resumingWith ma' ma =
   ∀ err eff r a .
   Member (Resumable err eff) r =>
   Sem r a ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 (<<!) =
   resumingWith @err
@@ -184,7 +184,7 @@ resumeHoist ::
   ∀ err eff err' r a .
   Members [Resumable err eff, Stop err'] r =>
   (err -> err') ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resumeHoist f =
   resuming (stop . f)
@@ -195,7 +195,7 @@ resumeHoistAs ::
   ∀ err eff err' r .
   Members [Resumable err eff, Stop err'] r =>
   err' ->
-  InterpreterFor eff r
+  InterpretersFor [eff, Stop err] r
 resumeHoistAs err =
   resumeHoist @err (const err)
 {-# inline resumeHoistAs #-}
@@ -204,7 +204,7 @@ resumeHoistAs err =
 restop ::
   ∀ err eff r .
   Members [Resumable err eff, Stop err] r =>
-  InterpreterFor eff r
+  InterpretersFor [eff, Stop err] r
 restop =
   resumeHoist @err id
 {-# inline restop #-}
@@ -213,7 +213,7 @@ restop =
 resumeEither ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r (Either err a)
 resumeEither ma =
   resuming (pure . Left) (Right <$> ma)
@@ -225,7 +225,7 @@ resumeEither ma =
 resumeOr ::
   ∀ err eff r a b .
   Member (Resumable err eff) r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   (a -> Sem r b) ->
   (err -> Sem r b) ->
   Sem r b
@@ -242,7 +242,7 @@ resumingOr ::
   ∀ err eff r a b .
   Member (Resumable err eff) r =>
   (err -> Sem r b) ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   (a -> Sem r b) ->
   Sem r b
 resumingOr err ma fb =
@@ -253,7 +253,7 @@ resumeHoistError ::
   ∀ err eff err' r a .
   Members [Resumable err eff, Error err'] r =>
   (err -> err') ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resumeHoistError f =
   resuming (throw . f)
@@ -264,7 +264,7 @@ resumeHoistErrorAs ::
   ∀ err eff err' r a .
   Members [Resumable err eff, Error err'] r =>
   err' ->
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resumeHoistErrorAs err =
   resumeHoistError @err (const err)
@@ -274,7 +274,7 @@ resumeHoistErrorAs err =
 resumeError ::
   ∀ err eff r a .
   Members [Resumable err eff, Error err] r =>
-  Sem (eff : r) a ->
+  Sem (eff : Stop err : r) a ->
   Sem r a
 resumeError =
   resumeHoistError @err id
