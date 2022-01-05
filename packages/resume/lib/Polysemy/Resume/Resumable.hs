@@ -1,3 +1,5 @@
+{-# options_ghc -Wno-redundant-constraints #-}
+
 module Polysemy.Resume.Resumable where
 
 import Polysemy (Final, Tactical)
@@ -38,7 +40,7 @@ distribEither initialState result =
 -- * the interpreter is wrapped with actions of another effect, as in:
 --
 --   @
---   interpretEffResumable :: InterpreterFor Eff r
+--   interpretEff :: InterpreterFor Eff r
 --   ...
 --
 --   interpretEffResumable :: InterpreterFor (Resumable Text Eff) r
