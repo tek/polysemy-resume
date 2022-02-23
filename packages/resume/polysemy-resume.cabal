@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.34.6.
 --
 -- see: https://github.com/sol/hpack
 
@@ -24,15 +24,9 @@ library
       Polysemy.Resume
       Polysemy.Resume.Data.Resumable
       Polysemy.Resume.Data.Stop
-      Polysemy.Resume.Prelude
       Polysemy.Resume.Resumable
       Polysemy.Resume.Resume
       Polysemy.Resume.Stop
-  other-modules:
-      Prelude
-      Paths_polysemy_resume
-  autogen-modules:
-      Paths_polysemy_resume
   hs-source-dirs:
       lib
   default-extensions:
@@ -96,8 +90,8 @@ library
   ghc-options: -flate-specialise -fspecialise-aggressively -Wall
   build-depends:
       base ==4.*
-    , polysemy >=1.5
-    , relude >=0.7
+    , incipit-core >=0.1
+    , polysemy >=1.6
     , transformers
   mixins:
       base hiding (Prelude)
@@ -109,7 +103,6 @@ test-suite polysemy-resume-unit
   other-modules:
       Polysemy.Resume.ExampleTest
       Polysemy.Resume.HigherOrderTest
-      Paths_polysemy_resume
   hs-source-dirs:
       test
   default-extensions:
@@ -170,19 +163,19 @@ test-suite polysemy-resume-unit
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-  ghc-options: -flate-specialise -fspecialise-aggressively -Wall -threaded -rtsopts -with-rtsopts=-N -fplugin=Polysemy.Plugin
+  ghc-options: -flate-specialise -fspecialise-aggressively -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base ==4.*
     , hedgehog
+    , incipit-core
     , polysemy
     , polysemy-plugin
     , polysemy-resume
     , polysemy-test
+    , stm
     , tasty
     , tasty-hedgehog
     , text
   mixins:
       base hiding (Prelude)
-    , polysemy-resume hiding (Prelude)
-    , polysemy-resume (Polysemy.Resume.Prelude as Prelude)
   default-language: Haskell2010

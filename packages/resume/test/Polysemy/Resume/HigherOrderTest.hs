@@ -1,22 +1,14 @@
-{-# options_ghc -Wno-all #-}
+{-# options_ghc -fplugin=Polysemy.Plugin #-}
 
 module Polysemy.Resume.HigherOrderTest where
 
-import Polysemy (makeSem, pureT, raise, raiseUnder, runT)
-import Polysemy.AtomicState (
-  AtomicState,
-  atomicModify,
-  runAtomicStateTVar,
-  )
-import Polysemy.Resource (Resource, finally)
-import Polysemy.Resume (type (!!))
-import Polysemy.Resume.Data.Stop (stop)
-import Polysemy.Resume.Resumable (interpretResumable, interpretResumableH)
-import Polysemy.Resume.Resume (restop, resume)
+import Control.Concurrent.STM (newTVarIO, readTVarIO)
 import Polysemy.Test (UnitTest, runTestAuto, (===))
 
-import Polysemy.Resume.Data.Stop (Stop)
-import Polysemy.Resume.Stop (stopNote)
+import Polysemy.Resume (type (!!))
+import Polysemy.Resume.Data.Stop (stop)
+import Polysemy.Resume.Resumable (interpretResumableH)
+import Polysemy.Resume.Resume (resume)
 
 data Eff :: Effect where
   Nest :: m a -> Eff m a
@@ -66,9 +58,9 @@ interpretEffFinally sem =
 test_switchInterpreter :: UnitTest
 test_switchInterpreter =
   runTestAuto do
-    tv <- newTVarIO 0
+    tv <- embed (newTVarIO 0)
     (2 ===) =<< runAtomicStateTVar tv (interpretEffFinally (resume (nest (result >> result)) \ _ -> pure 3))
-    (1 ===) =<< readTVarIO tv
+    (1 ===) =<< embed (readTVarIO tv)
     (3 ===) =<< interpretEff (resume (nest (nest result)) \ _ -> pure 3)
     (1 ===) =<< interpretEff (resume result \ _ -> pure 3)
     -- (2 ===) =<< interpretEff (interpretOff (resume off \ _ -> pure 3))

@@ -2,9 +2,7 @@
 
 module Polysemy.Resume.Resumable where
 
-import Polysemy (Final, Tactical)
-import Polysemy.Error (Error (Throw), catchJust)
-import Polysemy.Internal (Sem (Sem, runSem), liftSem, raise, raiseUnder, send, usingSem)
+import Polysemy.Internal (Sem (Sem, runSem), liftSem, usingSem)
 import Polysemy.Internal.CustomErrors (FirstOrder)
 import Polysemy.Internal.Tactics (liftT, runTactics)
 import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, inj, injWeaving, weave)
@@ -122,17 +120,16 @@ interpretResumableH handler (Sem m) =
       Left there ->
         k (hoist (interpretResumableH handler) there)
       Right (Weaving (Resumable (Weaving e s dist ex ins)) sOuter distOuter exOuter insOuter) ->
-        usingSem k (exFinal <$> runStop tac)
+        usingSem k (exFinal <$> runStop (tac (handler e)))
         where
           tac =
             runTactics
             (Compose (s <$ sOuter))
             (raiseUnder . fmap Compose . distOuter . fmap dist . getCompose)
-            (join . fmap ins . insOuter . getCompose)
+            (ins <=< insOuter . getCompose)
             (raise . interpretResumableH handler . fmap Compose . distOuter . fmap dist . getCompose)
-            (handler e)
           exFinal = exOuter . \case
-            Right (getCompose -> a) -> Right . ex <$> a
+            Right (Compose a) -> Right . ex <$> a
             Left err -> Left err <$ sOuter
 {-# inline interpretResumableH #-}
 

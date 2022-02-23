@@ -1,9 +1,9 @@
+{-# options_ghc -fplugin=Polysemy.Plugin #-}
+
 module Polysemy.Resume.ExampleTest where
 
-import Polysemy (interpret, makeSem)
 import Polysemy.Test (UnitTest, assertRight, runTestAuto, (===))
 
-import Polysemy.Error (runError)
 import Polysemy.Resume (Stop, resumable, resumableFor, resume, stop, type (!!))
 
 data Stopper :: Effect where

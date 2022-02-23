@@ -6,18 +6,18 @@ defaults:
 
 library:
   source-dirs: lib
-  other-modules:
-    - Prelude
-  generated-other-modules:
-    - Paths_polysemy_resume
   dependencies:
     - name: base
       version: '>= 4 && < 5'
       mixin:
         - hiding (Prelude)
-    - polysemy >= 1.5
-    - relude >= 0.7
+    - polysemy >= 1.6
+    - incipit-core >= 0.1
     - transformers
+  when:
+    condition: false
+    generated-other-modules:
+      - Paths_polysemy_resume
 
 ghc-options:
   - -flate-specialise
@@ -32,20 +32,22 @@ tests:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
-      - -fplugin=Polysemy.Plugin
     dependencies:
       - name: base
         version: '>= 4 && < 5'
         mixin:
           - hiding (Prelude)
-      - name: polysemy-resume
-        mixin:
-          - hiding (Prelude)
-          - (Polysemy.Resume.Prelude as Prelude)
       - hedgehog
+      - incipit-core
       - polysemy
       - polysemy-plugin
+      - polysemy-resume
       - polysemy-test
+      - stm
       - tasty
       - tasty-hedgehog
       - text
+    when:
+      condition: false
+      generated-other-modules:
+        - Paths_polysemy_resume

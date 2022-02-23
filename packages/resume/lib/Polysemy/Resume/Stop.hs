@@ -1,16 +1,15 @@
 module Polysemy.Resume.Stop where
 
-import Control.Exception (throwIO, try)
-import Control.Monad.Trans.Except (throwE)
+import qualified Control.Exception as Base
+import Control.Exception (throwIO)
+import Control.Monad.Trans.Except (ExceptT (ExceptT), runExceptT, throwE)
 import Data.Typeable (typeRep)
-import Polysemy (Final)
-import Polysemy.Error (runError, throw)
 import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
-import Polysemy.Internal (Sem(Sem), send, usingSem)
-import Polysemy.Internal.Union (Weaving(Weaving), decomp, hoist, weave)
+import Polysemy.Internal (Sem (Sem), usingSem)
+import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, weave)
 import qualified Text.Show
 
-import Polysemy.Resume.Data.Stop (Stop(Stop), stop)
+import Polysemy.Resume.Data.Stop (Stop (Stop), stop)
 
 hush :: Either e a -> Maybe a
 hush (Right a) = Just a
@@ -67,7 +66,7 @@ stopToIOFinal sem =
   withStrategicToFinal @IO do
     m' <- runS (runStopAsExcFinal sem)
     s <- getInitialStateS
-    pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> try m'
+    pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> Base.try m'
 {-# inline stopToIOFinal #-}
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
