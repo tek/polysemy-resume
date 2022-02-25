@@ -2,6 +2,7 @@
 
 module Polysemy.Resume.Resumable where
 
+import Polysemy.Error (Error (Throw))
 import Polysemy.Internal (Sem (Sem, runSem), liftSem, usingSem)
 import Polysemy.Internal.CustomErrors (FirstOrder)
 import Polysemy.Internal.Tactics (liftT, runTactics)
