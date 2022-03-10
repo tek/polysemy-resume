@@ -90,7 +90,7 @@ library
   ghc-options: -flate-specialise -fspecialise-aggressively -Wall
   build-depends:
       base ==4.*
-    , incipit-core >=0.1
+    , incipit-core >=0.2
     , polysemy >=1.6
     , transformers
   mixins:

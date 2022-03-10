@@ -82,11 +82,11 @@
         "thax": "thax"
       },
       "locked": {
-        "lastModified": 1645708959,
-        "narHash": "sha256-utU1seJSpXCF93bA06OZkhuSZ+OBcwJygzv6gaWxTMA=",
+        "lastModified": 1646940512,
+        "narHash": "sha256-AoyjT9dBuJ7JNNMKp/IUGEWcyAzvsDuaMEZDw3njAto=",
         "owner": "tek",
         "repo": "hix",
-        "rev": "40e302e2aec70b7dfc80b510dd8f07e8fbbb8597",
+        "rev": "2408672d3e959716caf1bff5dc4f0f25ab7e352f",
         "type": "github"
       },
       "original": {
@@ -129,11 +129,11 @@
         "hix": "hix_2"
       },
       "locked": {
-        "lastModified": 1645751129,
-        "narHash": "sha256-WtNJ93K8VSgO9OZTgGIF6tOvY2nLSv3Y5YJdo0Xg1OY=",
+        "lastModified": 1646930007,
+        "narHash": "sha256-mlaqVJ66PP136ff+A9b5I0RWN8CmxpsxNhByElAAihU=",
         "owner": "tek",
         "repo": "incipit-core",
-        "rev": "0d8a4c1d0b95dba21d09c86c53626773a3d3209d",
+        "rev": "e72673467959428c76cd947d94465153ad5ce8bc",
         "type": "github"
       },
       "original": {
