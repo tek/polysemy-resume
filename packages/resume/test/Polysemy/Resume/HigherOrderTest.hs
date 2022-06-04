@@ -6,7 +6,7 @@ import Control.Concurrent.STM (newTVarIO, readTVarIO)
 import Polysemy.Test (UnitTest, runTestAuto, (===))
 
 import Polysemy.Resume (type (!!))
-import Polysemy.Resume.Data.Stop (stop)
+import Polysemy.Resume.Effect.Stop (stop)
 import Polysemy.Resume.Resumable (interpretResumableH)
 import Polysemy.Resume.Resume (resume)
 

@@ -1,5 +1,8 @@
 # Unreleased
 
+* Add interceptors.
+* Change modules for effects to `Polysemy.Resume.Effect`.
+
 # 0.2.0.0
 
 * Add combinators `resumeOr` and `resumingOr`, which take an additional branch for the success case.

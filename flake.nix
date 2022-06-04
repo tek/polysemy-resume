@@ -16,12 +16,13 @@
     };
 
   in
-  hix.lib.flake {
+  hix.lib.flake ({ config, lib, ... }: {
     base = ./.;
     packages.polysemy-resume = ./packages/resume;
     overrides = { inherit all; };
     deps = [incipit-core];
-    hackage.versionFile = "ops/hpack/shared/meta.yaml";
+    hpack.packages = import ./ops/hpack.nix { inherit config lib; };
+    hackage.versionFile = "ops/version.nix";
     ghci.preludePackage = "incipit-core";
-  };
+  });
 }

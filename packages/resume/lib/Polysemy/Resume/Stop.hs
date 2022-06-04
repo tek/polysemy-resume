@@ -9,7 +9,7 @@ import Polysemy.Internal (Sem (Sem), usingSem)
 import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, weave)
 import qualified Text.Show
 
-import Polysemy.Resume.Data.Stop (Stop (Stop), stop)
+import Polysemy.Resume.Effect.Stop (Stop (Stop), stop)
 
 hush :: Either e a -> Maybe a
 hush (Right a) = Just a

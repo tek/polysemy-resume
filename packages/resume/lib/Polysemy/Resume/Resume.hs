@@ -1,8 +1,8 @@
 -- |Resumption combinators, transforming an effect into 'Resumable' and 'Stop'.
 module Polysemy.Resume.Resume where
 
-import Polysemy.Resume.Data.Resumable (Resumable)
-import Polysemy.Resume.Data.Stop (Stop, stop)
+import Polysemy.Resume.Effect.Resumable (Resumable)
+import Polysemy.Resume.Effect.Stop (Stop, stop)
 import Polysemy.Resume.Resumable (runAsResumable)
 import Polysemy.Resume.Stop (runStop)
 

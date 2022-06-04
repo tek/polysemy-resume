@@ -1,4 +1,4 @@
-module Polysemy.Resume.Data.Resumable where
+module Polysemy.Resume.Effect.Resumable where
 
 import Polysemy.Internal.Union (Weaving)
 

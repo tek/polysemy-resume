@@ -6,10 +6,10 @@ import Polysemy.Error (Error (Throw))
 import Polysemy.Internal (Sem (Sem, runSem), liftSem, usingSem)
 import Polysemy.Internal.CustomErrors (FirstOrder)
 import Polysemy.Internal.Tactics (liftT, runTactics)
-import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, inj, injWeaving, weave)
+import Polysemy.Internal.Union (ElemOf, Weaving (Weaving), decomp, hoist, inj, injWeaving, membership, prjUsing, weave)
 
-import Polysemy.Resume.Data.Resumable (Resumable (..))
-import Polysemy.Resume.Data.Stop (Stop, stop)
+import Polysemy.Resume.Effect.Resumable (Resumable (..))
+import Polysemy.Resume.Effect.Stop (Stop, stop)
 import Polysemy.Resume.Stop (StopExc, runStop, stopOnError, stopToIOFinal)
 
 type InterpreterTrans' eff eff' r r' =
@@ -141,7 +141,6 @@ interpretResumableH handler (Sem m) =
 --
 -- @
 -- interpretStopperResumable ::
---   Member (Stop Boom) r =>
 --   InterpreterFor Stopper r
 -- interpretStopperResumable =
 --   interpretResumable \\case
@@ -159,6 +158,69 @@ interpretResumable ::
 interpretResumable handler =
   interpretResumableH \ e -> liftT (handler e)
 {-# inline interpretResumable #-}
+
+-- |Interceptor variant of 'interpretResumableH'.
+interceptResumableUsingH ::
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
+  ElemOf (Resumable err eff) r ->
+  (∀ x r0 . eff (Sem r0) x -> Tactical (Resumable err eff) (Sem r0) (Stop err : r) x) ->
+  Sem r a ->
+  Sem r a
+interceptResumableUsingH proof handler (Sem m) =
+  Sem \ k -> m \ u ->
+    case prjUsing proof u of
+      Nothing ->
+        k (hoist (interceptResumableUsingH proof handler) u)
+      Just (Weaving (Resumable (Weaving e s dist ex ins)) sOuter distOuter exOuter insOuter) ->
+        usingSem k (exFinal <$> runStop (tac (handler e)))
+        where
+          tac =
+            runTactics
+            (Compose (s <$ sOuter))
+            (raise . raise . fmap Compose . distOuter . fmap dist . getCompose)
+            (ins <=< insOuter . getCompose)
+            (raise . interceptResumableUsingH proof handler . fmap Compose . distOuter . fmap dist . getCompose)
+          exFinal = exOuter . \case
+            Right (Compose a) -> Right . ex <$> a
+            Left err -> Left err <$ sOuter
+{-# inline interceptResumableUsingH #-}
+
+-- |Interceptor variant of 'interpretResumable'.
+interceptResumableUsing ::
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
+  FirstOrder eff "interceptResumableUsing" =>
+  ElemOf (Resumable err eff) r ->
+  (∀ x r0 . eff (Sem r0) x -> Sem (Stop err : r) x) ->
+  Sem r a ->
+  Sem r a
+interceptResumableUsing proof f =
+  interceptResumableUsingH proof \ e ->
+    liftT (f e)
+{-# inline interceptResumableUsing #-}
+
+-- |Interceptor variant of 'interpretResumableH'.
+interceptResumableH ::
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
+  Member (Resumable err eff) r =>
+  (∀ x r0 . eff (Sem r0) x -> Tactical (Resumable err eff) (Sem r0) (Stop err : r) x) ->
+  Sem r a ->
+  Sem r a
+interceptResumableH =
+  interceptResumableUsingH membership
+{-# inline interceptResumableH #-}
+
+-- |Interceptor variant of 'interpretResumable'.
+interceptResumable ::
+  ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
+  Member (Resumable err eff) r =>
+  FirstOrder eff "interceptResumable" =>
+  (∀ x r0 . eff (Sem r0) x -> Sem (Stop err : r) x) ->
+  Sem r a ->
+  Sem r a
+interceptResumable f =
+  interceptResumableH \ e ->
+    liftT (f e)
+{-# inline interceptResumable #-}
 
 -- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
 resumableError ::

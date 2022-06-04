@@ -5,25 +5,22 @@ cabal-version: 2.2
 -- see: https://github.com/sol/hpack
 
 name:           polysemy-resume
-version:        0.4.0.0
+version:        0.0.0
 synopsis:       Polysemy error tracking
-description:    Please see the readme on Github at <https://github.com/tek/polysemy-resume>
-category:       Experimental
+description:    See https://hackage.haskell.org/package/polysemy-resume/docs/Polysemy-Resume.html
+category:       Error
 author:         Torsten Schmits
-maintainer:     tek@tryp.io
-copyright:      2020 Torsten Schmits
+maintainer:     hackage@tryp.io
+copyright:      2022 Torsten Schmits
 license:        BSD-2-Clause-Patent
 license-file:   LICENSE
 build-type:     Simple
-extra-source-files:
-    readme.md
-    changelog.md
 
 library
   exposed-modules:
       Polysemy.Resume
-      Polysemy.Resume.Data.Resumable
-      Polysemy.Resume.Data.Stop
+      Polysemy.Resume.Effect.Resumable
+      Polysemy.Resume.Effect.Stop
       Polysemy.Resume.Resumable
       Polysemy.Resume.Resume
       Polysemy.Resume.Stop
@@ -43,6 +40,7 @@ library
       DeriveFoldable
       DeriveFunctor
       DeriveGeneric
+      DeriveLift
       DeriveTraversable
       DerivingStrategies
       DerivingVia
@@ -75,6 +73,7 @@ library
       RankNTypes
       RecordWildCards
       RecursiveDo
+      RoleAnnotations
       ScopedTypeVariables
       StandaloneDeriving
       TemplateHaskell
@@ -87,9 +86,9 @@ library
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-  ghc-options: -flate-specialise -fspecialise-aggressively -Wall
+  ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wmissing-deriving-strategies -Widentities -Wunused-packages
   build-depends:
-      base ==4.*
+      base >=4.12 && <5
     , incipit-core >=0.2
     , polysemy >=1.6
     , transformers
@@ -103,6 +102,7 @@ test-suite polysemy-resume-unit
   other-modules:
       Polysemy.Resume.ExampleTest
       Polysemy.Resume.HigherOrderTest
+      Polysemy.Resume.Test.InterceptTest
   hs-source-dirs:
       test
   default-extensions:
@@ -119,6 +119,7 @@ test-suite polysemy-resume-unit
       DeriveFoldable
       DeriveFunctor
       DeriveGeneric
+      DeriveLift
       DeriveTraversable
       DerivingStrategies
       DerivingVia
@@ -151,6 +152,7 @@ test-suite polysemy-resume-unit
       RankNTypes
       RecordWildCards
       RecursiveDo
+      RoleAnnotations
       ScopedTypeVariables
       StandaloneDeriving
       TemplateHaskell
@@ -163,9 +165,9 @@ test-suite polysemy-resume-unit
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-  ghc-options: -flate-specialise -fspecialise-aggressively -Wall -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wmissing-deriving-strategies -Widentities -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base ==4.*
+      base >=4.12 && <5
     , hedgehog
     , incipit-core
     , polysemy

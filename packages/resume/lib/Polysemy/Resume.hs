@@ -1,8 +1,8 @@
 module Polysemy.Resume (
   -- * Introduction
   -- $intro
-  module Polysemy.Resume.Data.Stop,
-  module Polysemy.Resume.Data.Resumable,
+  module Polysemy.Resume.Effect.Stop,
+  module Polysemy.Resume.Effect.Resumable,
   -- * Resuming a Stopped Computation
   resume,
   (!!),
@@ -40,8 +40,8 @@ module Polysemy.Resume (
   module Polysemy.Resume.Stop,
 ) where
 
-import Polysemy.Resume.Data.Resumable (Resumable, type (!!))
-import Polysemy.Resume.Data.Stop (Stop (..), stop)
+import Polysemy.Resume.Effect.Resumable (Resumable, type (!!))
+import Polysemy.Resume.Effect.Stop (Stop (..), stop)
 import Polysemy.Resume.Resumable (
   catchResumable,
   interpretResumable,

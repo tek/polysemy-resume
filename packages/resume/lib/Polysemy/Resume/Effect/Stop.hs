@@ -1,7 +1,7 @@
 {-# options_haddock prune #-}
 
 -- |Description: Internal
-module Polysemy.Resume.Data.Stop where
+module Polysemy.Resume.Effect.Stop where
 
 -- |An effect similar to 'Polysemy.Error.Error' without the ability to be caught.
 -- Used to signal that an error is supposed to be expected by dependent programs.
