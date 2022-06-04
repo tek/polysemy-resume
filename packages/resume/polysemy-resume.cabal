@@ -9,12 +9,18 @@ version:        0.4.0.0
 synopsis:       Polysemy error tracking
 description:    See https://hackage.haskell.org/package/polysemy-resume/docs/Polysemy-Resume.html
 category:       Error
+homepage:       https://github.com/tek/polysemy-resume#readme
+bug-reports:    https://github.com/tek/polysemy-resume/issues
 author:         Torsten Schmits
 maintainer:     hackage@tryp.io
 copyright:      2022 Torsten Schmits
 license:        BSD-2-Clause-Patent
 license-file:   LICENSE
 build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/tek/polysemy-resume
 
 library
   exposed-modules:

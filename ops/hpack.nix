@@ -34,6 +34,7 @@ let
     copyright = "2022 Torsten Schmits";
     category = "Error";
     build-type = "Simple";
+    github = "tek/polysemy-resume";
   };
 
   base = {

@@ -8,6 +8,10 @@ module Polysemy.Resume (
   (!!),
   interpretResumable,
   interpretResumableH,
+  interceptResumable,
+  interceptResumableH,
+  interceptResumableUsing,
+  interceptResumableUsingH,
   resumable,
   raiseResumable,
   resumableIO,
@@ -44,6 +48,10 @@ import Polysemy.Resume.Effect.Resumable (Resumable, type (!!))
 import Polysemy.Resume.Effect.Stop (Stop (..), stop)
 import Polysemy.Resume.Resumable (
   catchResumable,
+  interceptResumable,
+  interceptResumableH,
+  interceptResumableUsing,
+  interceptResumableUsingH,
   interpretResumable,
   interpretResumableH,
   raiseResumable,
