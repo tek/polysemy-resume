@@ -2,6 +2,7 @@
 
 * Add interceptors.
 * Change modules for effects to `Polysemy.Resume.Effect`.
+* Add `stopEitherAs`.
 
 # 0.2.0.0
 

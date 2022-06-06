@@ -89,6 +89,7 @@ import Polysemy.Resume.Stop (
   runStop,
   showStop,
   stopEither,
+  stopEitherAs,
   stopEitherWith,
   stopNote,
   stopOnError,

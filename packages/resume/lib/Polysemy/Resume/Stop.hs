@@ -79,6 +79,16 @@ stopEitherWith f =
   either (stop . f) pure
 {-# inline stopEitherWith #-}
 
+-- |Stop if the argument is 'Left', using the supplied error.
+stopEitherAs ::
+  Member (Stop err') r =>
+  err' ->
+  Either err a ->
+  Sem r a
+stopEitherAs e =
+  stopEitherWith (const e)
+{-# inline stopEitherAs #-}
+
 -- |Stop if the argument is 'Left'.
 stopEither ::
   Member (Stop err) r =>
