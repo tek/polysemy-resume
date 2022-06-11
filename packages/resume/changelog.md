@@ -1,8 +1,11 @@
 # Unreleased
 
+# 0.5.0.0
+
 * Add interceptors.
 * Change modules for effects to `Polysemy.Resume.Effect`.
 * Add `stopEitherAs`.
+* Add exception catching `stop` combinators.
 
 # 0.2.0.0
 

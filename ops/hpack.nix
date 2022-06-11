@@ -37,12 +37,6 @@ let
     github = "tek/polysemy-resume";
   };
 
-  base = {
-    name = "base";
-    version = ">= 4.12 && < 5";
-    mixin = "hiding (Prelude)";
-  };
-
   options.ghc-options = [
     "-Wall"
     "-Wredundant-constraints"
@@ -53,7 +47,7 @@ let
   ];
 
   dependencies = [
-      base
+      { name = "base"; version = ">= 4.12 && < 5"; mixin = "hiding (Prelude)"; }
       { name = "incipit-core"; version = ">= 0.3"; mixin = ["(IncipitCore as Prelude)" "hiding (IncipitCore)"]; }
     ];
 
