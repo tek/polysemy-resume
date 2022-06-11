@@ -95,7 +95,12 @@ import Polysemy.Resume.Stop (
   stopOnError,
   stopOnErrorWith,
   stopToError,
+  stopToErrorWith,
   stopToIOFinal,
+  stopTryIOE,
+  stopTryIO,
+  stopTryIOError,
+  stopTryAny,
   )
 
 -- $intro

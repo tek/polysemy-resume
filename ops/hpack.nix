@@ -52,7 +52,10 @@ let
     "-Wunused-packages"
   ];
 
-  dependencies = [base];
+  dependencies = [
+      base
+      { name = "incipit-core"; version = ">= 0.3"; mixin = ["(IncipitCore as Prelude)" "hiding (IncipitCore)"]; }
+    ];
 
   project = name: doc: merge (meta // { library = paths name; } // options) {
     inherit name;
@@ -80,20 +83,16 @@ in {
   polysemy-resume = merge (project "polysemy-resume" "Polysemy-Resume") {
     synopsis = "Polysemy error tracking";
     library.dependencies = [
-      base
       "polysemy >= 1.6"
-      "incipit-core >= 0.2"
       "transformers"
     ];
     tests.polysemy-resume-unit = exe "polysemy-resume" "test" {
       dependencies = [
-        base
         "hedgehog"
-        "incipit-core"
         "polysemy"
         "polysemy-plugin"
         "polysemy-resume"
-        "polysemy-test"
+        "polysemy-test >= 0.6"
         "stm"
         "tasty"
         "tasty-hedgehog"

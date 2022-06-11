@@ -127,13 +127,23 @@ stopOnErrorWith f =
   stopEitherWith f <=< runError
 {-# inline stopOnErrorWith #-}
 
+-- |Convert a program using 'Stop' to one using 'Error', transforming the error with the supplied function.
+stopToErrorWith ::
+  Member (Error err') r =>
+  (err -> err') ->
+  Sem (Stop err : r) a ->
+  Sem r a
+stopToErrorWith f =
+  either (throw . f) pure <=< runStop
+{-# inline stopToErrorWith #-}
+
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToError ::
   Member (Error err) r =>
   Sem (Stop err : r) a ->
   Sem r a
 stopToError =
-  either throw pure <=< runStop
+  stopToErrorWith id
 {-# inline stopToError #-}
 
 -- |Convert a program using 'Stop' to one using 'Error'.
@@ -172,3 +182,49 @@ showStop ::
 showStop =
   mapStop @e @Text show
 {-# inline showStop #-}
+
+-- |Convert an 'IO' exception to 'Stop' using the provided transformation.
+stopTryIOE ::
+  ∀ exc e r a .
+  Exception exc =>
+  Members [Stop e, Embed IO] r =>
+  (exc -> e) ->
+  IO a ->
+  Sem r a
+stopTryIOE f =
+  stopEitherWith f <=< tryIOE @exc
+{-# inline stopTryIOE #-}
+
+-- |Convert an 'IO' exception of type @e@ to 'Stop' using the provided transformation from 'Text'.
+stopTryIO ::
+  ∀ exc e r a .
+  Exception exc =>
+  Members [Stop e, Embed IO] r =>
+  (Text -> e) ->
+  IO a ->
+  Sem r a
+stopTryIO f =
+  stopEitherWith f <=< tryIO @exc
+{-# inline stopTryIO #-}
+
+-- |Convert an 'IO' exception of type 'IOError' to 'Stop' using the provided transformation from 'Text'.
+stopTryIOError ::
+  ∀ e r a .
+  Members [Stop e, Embed IO] r =>
+  (Text -> e) ->
+  IO a ->
+  Sem r a
+stopTryIOError f =
+  stopEitherWith f <=< tryIOError
+{-# inline stopTryIOError #-}
+
+-- |Convert an 'IO' exception to 'Stop' using the provided transformation from 'Text'.
+stopTryAny ::
+  ∀ e r a .
+  Members [Stop e, Embed IO] r =>
+  (Text -> e) ->
+  IO a ->
+  Sem r a
+stopTryAny f =
+  stopEitherWith f <=< tryAny
+{-# inline stopTryAny #-}
