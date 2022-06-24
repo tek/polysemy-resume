@@ -86,6 +86,7 @@ import Polysemy.Resume.Resume (
   )
 import Polysemy.Resume.Stop (
   mapStop,
+  replaceStop,
   runStop,
   showStop,
   stopEither,
@@ -97,10 +98,10 @@ import Polysemy.Resume.Stop (
   stopToError,
   stopToErrorWith,
   stopToIOFinal,
-  stopTryIOE,
-  stopTryIO,
-  stopTryIOError,
   stopTryAny,
+  stopTryIO,
+  stopTryIOE,
+  stopTryIOError,
   )
 
 -- $intro

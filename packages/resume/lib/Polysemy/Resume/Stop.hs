@@ -31,7 +31,7 @@ runStop (Sem m) =
 
 newtype StopExc e =
   StopExc { unStopExc :: e }
-  deriving (Typeable)
+  deriving stock (Typeable)
 
 instance {-# overlappable #-} Typeable e => Show (StopExc e) where
   show =
@@ -171,6 +171,17 @@ mapStop f (Sem m) =
       Right (Weaving (Stop e) _ _ _ _) ->
         usingSem k (send $ Stop (f e))
 {-# inline mapStop #-}
+
+-- |Replace the error in a 'Stop' with another type.
+replaceStop ::
+  ∀ e e' r a .
+  Member (Stop e') r =>
+  e' ->
+  Sem (Stop e : r) a ->
+  Sem r a
+replaceStop e' =
+  mapStop (const e')
+{-# inline replaceStop #-}
 
 -- |Convert the error type in a 'Stop' to 'Text'.
 showStop ::
