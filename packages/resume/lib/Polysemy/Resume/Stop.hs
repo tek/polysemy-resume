@@ -11,57 +11,59 @@ import qualified Text.Show
 
 import Polysemy.Resume.Effect.Stop (Stop (Stop), stop)
 
-hush :: Either e a -> Maybe a
+hush :: Either err a -> Maybe a
 hush (Right a) = Just a
 hush (Left _) = Nothing
 
 -- |Equivalent of 'runError'.
 runStop ::
-  Sem (Stop e : r) a ->
-  Sem r (Either e a)
+  Sem (Stop err : r) a ->
+  Sem r (Either err a)
 runStop (Sem m) =
   Sem \ k ->
     runExceptT $ m \ u ->
       case decomp u of
         Left x ->
           ExceptT $ k $ weave (Right ()) (either (pure . Left) runStop) hush x
-        Right (Weaving (Stop e) _ _ _ _) ->
-          throwE e
+        Right (Weaving (Stop err) _ _ _ _) ->
+          throwE err
 {-# inline runStop #-}
 
-newtype StopExc e =
-  StopExc { unStopExc :: e }
+newtype StopExc err =
+  StopExc { unStopExc :: err }
   deriving stock (Typeable)
 
-instance {-# overlappable #-} Typeable e => Show (StopExc e) where
+instance {-# overlappable #-} Typeable err => Show (StopExc err) where
   show =
     mappend "StopExc: " . show . typeRep
 
 instance Show (StopExc Text) where
-  show (StopExc e) =
-    "StopExc " <> show e
+  show (StopExc err) =
+    "StopExc " <> show err
 
-instance {-# overlappable #-} Typeable e => Exception (StopExc e)
+instance {-# overlappable #-} Typeable err => Exception (StopExc err)
 
 instance Exception (StopExc Text)
 
 runStopAsExcFinal ::
-  Exception (StopExc e) =>
+  ∀ err r a .
+  Exception (StopExc err) =>
   Member (Final IO) r =>
-  Sem (Stop e : r) a ->
+  Sem (Stop err : r) a ->
   Sem r a
 runStopAsExcFinal =
   interpretFinal \case
-    Stop e ->
-      pure (throwIO (StopExc e))
+    Stop err ->
+      pure (throwIO (StopExc err))
 {-# inline runStopAsExcFinal #-}
 
 -- |Run 'Stop' by throwing exceptions.
 stopToIOFinal ::
-  Exception (StopExc e) =>
+  ∀ err r a .
+  Exception (StopExc err) =>
   Member (Final IO) r =>
-  Sem (Stop e : r) a ->
-  Sem r (Either e a)
+  Sem (Stop err : r) a ->
+  Sem r (Either err a)
 stopToIOFinal sem =
   withStrategicToFinal @IO do
     m' <- runS (runStopAsExcFinal sem)
@@ -71,6 +73,7 @@ stopToIOFinal sem =
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
 stopEitherWith ::
+  ∀ err err' r a .
   Member (Stop err') r =>
   (err -> err') ->
   Either err a ->
@@ -81,16 +84,18 @@ stopEitherWith f =
 
 -- |Stop if the argument is 'Left', using the supplied error.
 stopEitherAs ::
+  ∀ err err' r a .
   Member (Stop err') r =>
   err' ->
   Either err a ->
   Sem r a
-stopEitherAs e =
-  stopEitherWith (const e)
+stopEitherAs err =
+  stopEitherWith (const err)
 {-# inline stopEitherAs #-}
 
 -- |Stop if the argument is 'Left'.
 stopEither ::
+  ∀ err r a .
   Member (Stop err) r =>
   Either err a ->
   Sem r a
@@ -100,6 +105,7 @@ stopEither =
 
 -- |Stop with the supplied error if the argument is 'Nothing'.
 stopNote ::
+  ∀ err r a .
   Member (Stop err) r =>
   err ->
   Maybe a ->
@@ -110,6 +116,7 @@ stopNote err =
 
 -- |Convert a program using regular 'Error's to one using 'Stop'.
 stopOnError ::
+  ∀ err r a .
   Member (Stop err) r =>
   Sem (Error err : r) a ->
   Sem r a
@@ -119,6 +126,7 @@ stopOnError =
 
 -- |Convert a program using regular 'Error's to one using 'Stop'.
 stopOnErrorWith ::
+  ∀ err err' r a .
   Member (Stop err') r =>
   (err -> err') ->
   Sem (Error err : r) a ->
@@ -129,6 +137,7 @@ stopOnErrorWith f =
 
 -- |Convert a program using 'Stop' to one using 'Error', transforming the error with the supplied function.
 stopToErrorWith ::
+  ∀ err err' r a .
   Member (Error err') r =>
   (err -> err') ->
   Sem (Stop err : r) a ->
@@ -139,6 +148,7 @@ stopToErrorWith f =
 
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToError ::
+  ∀ err r a .
   Member (Error err) r =>
   Sem (Stop err : r) a ->
   Sem r a
@@ -148,6 +158,7 @@ stopToError =
 
 -- |Convert a program using 'Stop' to one using 'Error'.
 stopToErrorIO ::
+  ∀ err r a .
   Exception (StopExc err) =>
   Members [Error err, Final IO] r =>
   Sem (Stop err : r) a ->
@@ -158,26 +169,26 @@ stopToErrorIO =
 
 -- |Map over the error type in a 'Stop'.
 mapStop ::
-  ∀ e e' r a .
+  ∀ err e' r a .
   Member (Stop e') r =>
-  (e -> e') ->
-  Sem (Stop e : r) a ->
+  (err -> e') ->
+  Sem (Stop err : r) a ->
   Sem r a
 mapStop f (Sem m) =
   Sem \ k -> m \ u ->
     case decomp u of
       Left x ->
         k (hoist (mapStop f) x)
-      Right (Weaving (Stop e) _ _ _ _) ->
-        usingSem k (send $ Stop (f e))
+      Right (Weaving (Stop err) _ _ _ _) ->
+        usingSem k (send $ Stop (f err))
 {-# inline mapStop #-}
 
 -- |Replace the error in a 'Stop' with another type.
 replaceStop ::
-  ∀ e e' r a .
+  ∀ err e' r a .
   Member (Stop e') r =>
   e' ->
-  Sem (Stop e : r) a ->
+  Sem (Stop err : r) a ->
   Sem r a
 replaceStop e' =
   mapStop (const e')
@@ -185,33 +196,33 @@ replaceStop e' =
 
 -- |Convert the error type in a 'Stop' to 'Text'.
 showStop ::
-  ∀ e r a .
-  Show e =>
+  ∀ err r a .
+  Show err =>
   Member (Stop Text) r =>
-  Sem (Stop e : r) a ->
+  Sem (Stop err : r) a ->
   Sem r a
 showStop =
-  mapStop @e @Text show
+  mapStop @err @Text show
 {-# inline showStop #-}
 
 -- |Convert an 'IO' exception to 'Stop' using the provided transformation.
 stopTryIOE ::
-  ∀ exc e r a .
+  ∀ exc err r a .
   Exception exc =>
-  Members [Stop e, Embed IO] r =>
-  (exc -> e) ->
+  Members [Stop err, Embed IO] r =>
+  (exc -> err) ->
   IO a ->
   Sem r a
 stopTryIOE f =
   stopEitherWith f <=< tryIOE @exc
 {-# inline stopTryIOE #-}
 
--- |Convert an 'IO' exception of type @e@ to 'Stop' using the provided transformation from 'Text'.
+-- |Convert an 'IO' exception of type @err@ to 'Stop' using the provided transformation from 'Text'.
 stopTryIO ::
-  ∀ exc e r a .
+  ∀ exc err r a .
   Exception exc =>
-  Members [Stop e, Embed IO] r =>
-  (Text -> e) ->
+  Members [Stop err, Embed IO] r =>
+  (Text -> err) ->
   IO a ->
   Sem r a
 stopTryIO f =
@@ -220,9 +231,9 @@ stopTryIO f =
 
 -- |Convert an 'IO' exception of type 'IOError' to 'Stop' using the provided transformation from 'Text'.
 stopTryIOError ::
-  ∀ e r a .
-  Members [Stop e, Embed IO] r =>
-  (Text -> e) ->
+  ∀ err r a .
+  Members [Stop err, Embed IO] r =>
+  (Text -> err) ->
   IO a ->
   Sem r a
 stopTryIOError f =
@@ -231,9 +242,9 @@ stopTryIOError f =
 
 -- |Convert an 'IO' exception to 'Stop' using the provided transformation from 'Text'.
 stopTryAny ::
-  ∀ e r a .
-  Members [Stop e, Embed IO] r =>
-  (Text -> e) ->
+  ∀ err r a .
+  Members [Stop err, Embed IO] r =>
+  (Text -> err) ->
   IO a ->
   Sem r a
 stopTryAny f =

@@ -1,6 +1,7 @@
 # Unreleased
 
 * Add `replaceStop`, shorthand for `mapStop . const`.
+* Add `∀` to `Stop` interpreters.
 
 # 0.5.0.0
 
