@@ -277,3 +277,39 @@ resumeError ::
 resumeError =
   resumeHoistError @err id
 {-# inline resumeError #-}
+
+stopToFailWith ::
+  ∀ err r .
+  Member Fail r =>
+  (err -> Text) ->
+  InterpreterFor (Stop err) r
+stopToFailWith f =
+  either (fail . toString . f) pure <=< runStop
+{-# inline stopToFailWith #-}
+
+resumeFailWith ::
+  ∀ err eff r .
+  Members [Fail, Resumable err eff] r =>
+  (err -> Text) ->
+  InterpreterFor eff r
+resumeFailWith f =
+  resuming (fail . toString . f)
+{-# inline resumeFailWith #-}
+
+stopToFail ::
+  ∀ err r .
+  Show err =>
+  Member Fail r =>
+  InterpreterFor (Stop err) r
+stopToFail =
+  stopToFailWith show
+{-# inline stopToFail #-}
+
+resumeFail ::
+  ∀ err eff r .
+  Show err =>
+  Members [Fail, Resumable err eff] r =>
+  InterpreterFor eff r
+resumeFail =
+  resumeFailWith @err show
+{-# inline resumeFail #-}

@@ -2,6 +2,7 @@
 
 * Add `replaceStop`, shorthand for `mapStop . const`.
 * Add `∀` to `Stop` interpreters.
+* Add resumers that transform to `Fail`.
 
 # 0.5.0.0
 

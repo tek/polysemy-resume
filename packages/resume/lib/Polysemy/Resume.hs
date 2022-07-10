@@ -41,6 +41,10 @@ module Polysemy.Resume (
   resumableFor,
   runAsResumable,
   catchResumable,
+  stopToFailWith,
+  stopToFail,
+  resumeFailWith,
+  resumeFail,
   module Polysemy.Resume.Stop,
 ) where
 
@@ -68,6 +72,8 @@ import Polysemy.Resume.Resume (
   resumeAs,
   resumeEither,
   resumeError,
+  resumeFail,
+  resumeFailWith,
   resumeHoist,
   resumeHoistAs,
   resumeHoistError,
@@ -78,6 +84,8 @@ import Polysemy.Resume.Resume (
   resuming,
   resumingOr,
   resumingWith,
+  stopToFail,
+  stopToFailWith,
   (!!),
   (!>),
   (!>>),
