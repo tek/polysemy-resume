@@ -2,14 +2,15 @@
   description = "Polysemy error tracking";
 
   inputs.hix.url = git+https://git.tryp.io/tek/hix;
+  inputs.polysemy.url = github:polysemy-research/polysemy?ref=torsten/scoped-switch-interpreter;
 
-  outputs = { hix, ... }:
+  outputs = { hix, polysemy, ... }:
   let
 
-    all = { hackage, ... }: {
+    all = { hackage, source, ... }: {
       incipit-base = hackage "0.4.0.0" "0g04mw1si70g5kkgz9gnk460d4pvm65i30hd9abrg6g0ryizixqf";
       incipit-core = hackage "0.4.0.0" "168m94c1480y8lhin1sbrwzr14dq13ixkgkcl7ikq78vcq267521";
-      polysemy = hackage "1.8.0.0" "0jgaqmcf4l8h58g1y576rrr74sii60mymqxh3ii3clnxcllp3p01";
+      polysemy = source.root polysemy;
       polysemy-plugin = hackage "0.4.4.0" "08ry72bw78fis9iallzw6wsrzxnlmayq2k2yy0j79hpw4sp8knmg";
     };
 

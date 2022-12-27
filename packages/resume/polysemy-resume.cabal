@@ -117,6 +117,7 @@ test-suite polysemy-resume-unit
       Polysemy.Resume.ExampleTest
       Polysemy.Resume.HigherOrderTest
       Polysemy.Resume.Test.InterceptTest
+      Polysemy.Resume.Test.ScopedTest
   hs-source-dirs:
       test
   default-extensions:
