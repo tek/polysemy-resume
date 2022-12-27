@@ -15,6 +15,24 @@ module Polysemy.Resume (
   resumable,
   raiseResumable,
   resumableIO,
+  interpretScopedResumable,
+  interpretScopedResumableH,
+  interpretScopedResumable_,
+  interpretScopedResumableWith,
+  interpretScopedResumableWithH,
+  interpretScopedResumableWith_,
+  interpretResumableScoped,
+  interpretResumableScopedH,
+  interpretResumableScoped_,
+  interpretResumableScopedWith,
+  interpretResumableScopedWithH,
+  interpretResumableScopedWith_,
+  interpretScopedR,
+  interpretScopedRH,
+  interpretScopedR_,
+  interpretScopedRWith,
+  interpretScopedRWithH,
+  interpretScopedRWith_,
   -- * Partial Handlers
   -- $partial
   resumableOr,
@@ -50,6 +68,26 @@ module Polysemy.Resume (
 
 import Polysemy.Resume.Effect.Resumable (Resumable, type (!!))
 import Polysemy.Resume.Effect.Stop (Stop (..), stop)
+import Polysemy.Resume.Interpreter.Scoped (
+  interpretResumableScoped,
+  interpretResumableScopedH,
+  interpretResumableScopedWith,
+  interpretResumableScopedWithH,
+  interpretResumableScopedWith_,
+  interpretResumableScoped_,
+  interpretScopedR,
+  interpretScopedRH,
+  interpretScopedRWith,
+  interpretScopedRWithH,
+  interpretScopedRWith_,
+  interpretScopedR_,
+  interpretScopedResumable,
+  interpretScopedResumableH,
+  interpretScopedResumableWith,
+  interpretScopedResumableWithH,
+  interpretScopedResumableWith_,
+  interpretScopedResumable_,
+  )
 import Polysemy.Resume.Resumable (
   catchResumable,
   interceptResumable,

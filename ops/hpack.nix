@@ -48,7 +48,7 @@ let
 
   dependencies = [
       { name = "base"; version = ">= 4.12 && < 5"; mixin = "hiding (Prelude)"; }
-      { name = "incipit-core"; version = ">= 0.3"; mixin = ["(IncipitCore as Prelude)" "hiding (IncipitCore)"]; }
+      { name = "incipit-core"; version = ">= 0.4"; mixin = ["(IncipitCore as Prelude)" "hiding (IncipitCore)"]; }
     ];
 
   project = name: doc: merge (meta // { library = paths name; } // options) {
@@ -78,20 +78,17 @@ in {
   polysemy-resume = merge (project "polysemy-resume" "Polysemy-Resume") {
     synopsis = "Polysemy error tracking";
     library.dependencies = [
-      "polysemy >= 1.6"
+      "polysemy ^>= 1.8"
       "transformers"
     ];
     tests.polysemy-resume-unit = exe "polysemy-resume" "test" {
       dependencies = [
-        "hedgehog"
-        "polysemy"
-        "polysemy-plugin"
+        "polysemy ^>= 1.8"
+        "polysemy-plugin ^>= 0.4.3"
         "polysemy-resume"
         "polysemy-test >= 0.6"
         "stm"
         "tasty"
-        "tasty-hedgehog"
-        "text"
       ];
     };
   };

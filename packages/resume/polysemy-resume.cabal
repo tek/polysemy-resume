@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.34.6.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -30,6 +30,7 @@ library
       Polysemy.Resume
       Polysemy.Resume.Effect.Resumable
       Polysemy.Resume.Effect.Stop
+      Polysemy.Resume.Interpreter.Scoped
       Polysemy.Resume.Resumable
       Polysemy.Resume.Resume
       Polysemy.Resume.Stop
@@ -56,6 +57,7 @@ library
       DisambiguateRecordFields
       DoAndIfThenElse
       DuplicateRecordFields
+      EmptyCase
       EmptyDataDecls
       ExistentialQuantification
       FlexibleContexts
@@ -70,8 +72,9 @@ library
       MultiParamTypeClasses
       MultiWayIf
       NamedFieldPuns
-      OverloadedStrings
+      OverloadedLabels
       OverloadedLists
+      OverloadedStrings
       PackageImports
       PartialTypeSignatures
       PatternGuards
@@ -98,8 +101,8 @@ library
   ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wmissing-deriving-strategies -Widentities -Wunused-packages
   build-depends:
       base >=4.12 && <5
-    , incipit-core >=0.3
-    , polysemy >=1.6
+    , incipit-core >=0.4
+    , polysemy ==1.8.*
     , transformers
   mixins:
       base hiding (Prelude)
@@ -137,6 +140,7 @@ test-suite polysemy-resume-unit
       DisambiguateRecordFields
       DoAndIfThenElse
       DuplicateRecordFields
+      EmptyCase
       EmptyDataDecls
       ExistentialQuantification
       FlexibleContexts
@@ -151,8 +155,9 @@ test-suite polysemy-resume-unit
       MultiParamTypeClasses
       MultiWayIf
       NamedFieldPuns
-      OverloadedStrings
+      OverloadedLabels
       OverloadedLists
+      OverloadedStrings
       PackageImports
       PartialTypeSignatures
       PatternGuards
@@ -179,16 +184,13 @@ test-suite polysemy-resume-unit
   ghc-options: -Wall -Wredundant-constraints -Wincomplete-uni-patterns -Wmissing-deriving-strategies -Widentities -Wunused-packages -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.12 && <5
-    , hedgehog
-    , incipit-core >=0.3
-    , polysemy
-    , polysemy-plugin
+    , incipit-core >=0.4
+    , polysemy ==1.8.*
+    , polysemy-plugin >=0.4.3 && <0.5
     , polysemy-resume
     , polysemy-test >=0.6
     , stm
     , tasty
-    , tasty-hedgehog
-    , text
   mixins:
       base hiding (Prelude)
     , incipit-core (IncipitCore as Prelude)

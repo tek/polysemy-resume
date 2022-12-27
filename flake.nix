@@ -1,34 +1,26 @@
 {
-  description = "Polysemy Error Tracking";
+  description = "Polysemy error tracking";
 
-  inputs = {
-    hix.url = github:tek/hix;
-    incipit-core.url = github:tek/incipit-core;
-  };
+  inputs.hix.url = git+https://git.tryp.io/tek/hix;
 
-  outputs = { hix, incipit-core, ... }:
+  outputs = { hix, ... }:
   let
 
-    ghc922 = { hackage, jailbreak, notest, ... }: {
-      polysemy = hackage "1.7.1.0" "0qwli1kx3hk68hqsgw65mk81bx0djw1wlk17v8ggym7mf3lailyc";
-      polysemy-plugin = hackage "0.4.3.0" "1r7j1ffsd6z2q2fgpg78brl2gb0dg8r5ywfiwdrsjd2fxkinjcg1";
-      type-errors = notest;
+    all = { hackage, ... }: {
+      incipit-base = hackage "0.4.0.0" "0g04mw1si70g5kkgz9gnk460d4pvm65i30hd9abrg6g0ryizixqf";
+      incipit-core = hackage "0.4.0.0" "168m94c1480y8lhin1sbrwzr14dq13ixkgkcl7ikq78vcq267521";
+      polysemy = hackage "1.8.0.0" "0jgaqmcf4l8h58g1y576rrr74sii60mymqxh3ii3clnxcllp3p01";
+      polysemy-plugin = hackage "0.4.4.0" "08ry72bw78fis9iallzw6wsrzxnlmayq2k2yy0j79hpw4sp8knmg";
     };
 
-    all = { hackage, source, ... }: {
-      incipit-base = hackage "0.3.0.0" "1078yyl5k94c9pr16rqd1i1g1fj8zx4iswhk7rcxb8f10fjqzapg";
-      incipit-core = hackage "0.3.0.0" "0q11zmxlpdb72p8c8zvr5hd7qca9c37crm70lm16jxlzw1qxk51b";
-      polysemy = hackage "1.6.0.0" "15k51ysrfcbkww1562g8zvrlzymlk2rxhcsz9ipsb0q6h571qgvf";
-      polysemy-plugin = hackage "0.4.1.0" "117g92l1ppsqd3w0rqjrxfk0lx6yndd54rpymgxljilnv43zg29s";
-      polysemy-test = hackage "0.6.0.0" "07pi549ral22sxhja67k5b9v787q0b32ysp0bq9szhwjqgxsab46";
+    dev = { hackage, ... }: {
+      polysemy-test = hackage "0.7.0.0" "1m6ncbihr742765rshz6w7dn450f3d2ip6ci3qah27lnz7yrwmp6";
     };
 
   in
-  hix.lib.flake ({ config, lib, ... }: {
-    base = ./.;
+  hix.lib.pro ({ config, lib, ... }: {
     packages.polysemy-resume = ./packages/resume;
-    overrides = { inherit all ghc922; };
-    deps = [incipit-core];
+    overrides = { inherit all dev; };
     hpack.packages = import ./ops/hpack.nix { inherit config lib; };
     hackage.versionFile = "ops/version.nix";
     ghci = {
