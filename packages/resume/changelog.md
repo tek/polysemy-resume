@@ -1,8 +1,12 @@
 # Unreleased
 
+# 0.6.0.0
+
 * Add `replaceStop`, shorthand for `mapStop . const`.
 * Add `∀` to `Stop` interpreters.
 * Add resumers that transform to `Fail`.
+* Move `Scoped` interpreters from `polysemy-conc`, since `Scoped` is now in `polysemy`.
+* Support GHC 9.4.
 
 # 0.5.0.0
 

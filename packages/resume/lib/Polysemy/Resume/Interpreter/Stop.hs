@@ -1,4 +1,7 @@
-module Polysemy.Resume.Stop where
+{-# options_haddock prune #-}
+
+-- |Description: Interpreters for 'Stop'.
+module Polysemy.Resume.Interpreter.Stop where
 
 import qualified Control.Exception as Base
 import Control.Exception (throwIO)
@@ -11,10 +14,6 @@ import qualified Text.Show
 
 import Polysemy.Resume.Effect.Stop (Stop (Stop), stop)
 
-hush :: Either err a -> Maybe a
-hush (Right a) = Just a
-hush (Left _) = Nothing
-
 -- |Equivalent of 'runError'.
 runStop ::
   Sem (Stop err : r) a ->
@@ -24,11 +23,12 @@ runStop (Sem m) =
     runExceptT $ m \ u ->
       case decomp u of
         Left x ->
-          ExceptT $ k $ weave (Right ()) (either (pure . Left) runStop) hush x
+          ExceptT $ k $ weave (Right ()) (either (pure . Left) runStop) rightToMaybe x
         Right (Weaving (Stop err) _ _ _ _) ->
           throwE err
 {-# inline runStop #-}
 
+-- | Internal type used to tag exceptions thrown by 'Stop' interpreters.
 newtype StopExc err =
   StopExc { unStopExc :: err }
   deriving stock (Typeable)
@@ -45,6 +45,7 @@ instance {-# overlappable #-} Typeable err => Exception (StopExc err)
 
 instance Exception (StopExc Text)
 
+-- |Run 'Stop' by throwing exceptions.
 runStopAsExcFinal ::
   ∀ err r a .
   Exception (StopExc err) =>
@@ -57,7 +58,7 @@ runStopAsExcFinal =
       pure (throwIO (StopExc err))
 {-# inline runStopAsExcFinal #-}
 
--- |Run 'Stop' by throwing exceptions.
+-- |Run 'Stop' by throwing and catching exceptions.
 stopToIOFinal ::
   ∀ err r a .
   Exception (StopExc err) =>
@@ -229,7 +230,8 @@ stopTryIO f =
   stopEitherWith f <=< tryIO @exc
 {-# inline stopTryIO #-}
 
--- |Convert an 'IO' exception of type 'IOError' to 'Stop' using the provided transformation from 'Text'.
+-- |Convert an 'IO' exception of type 'Control.Exception.IOError' to 'Stop' using the provided transformation from
+-- 'Text'.
 stopTryIOError ::
   ∀ err r a .
   Members [Stop err, Embed IO] r =>

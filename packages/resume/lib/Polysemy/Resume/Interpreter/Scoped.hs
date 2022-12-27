@@ -1,6 +1,8 @@
 {-# options_haddock prune #-}
 
 -- |Description: Interpreters for 'Scoped' in combination with 'Resumable'
+--
+-- @since 0.6.0.0
 module Polysemy.Resume.Interpreter.Scoped where
 
 import GHC.Err (errorWithoutStackTrace)
@@ -13,8 +15,8 @@ import Polysemy.Internal.Union (Weaving (Weaving), extendMembershipLeft, injWeav
 
 import Polysemy.Resume.Effect.Resumable (Resumable (Resumable), type (!!))
 import Polysemy.Resume.Effect.Stop (Stop)
-import Polysemy.Resume.Resumable (interpretResumableH)
-import Polysemy.Resume.Stop (runStop)
+import Polysemy.Resume.Interpreter.Resumable (interpretResumableH)
+import Polysemy.Resume.Interpreter.Stop (runStop)
 
 exResumable ::
   Functor f =>

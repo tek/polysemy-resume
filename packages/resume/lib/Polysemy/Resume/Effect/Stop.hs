@@ -1,6 +1,6 @@
 {-# options_haddock prune #-}
 
--- |Description: Internal
+-- |Description: The 'Stop' effect.
 module Polysemy.Resume.Effect.Stop where
 
 -- |An effect similar to 'Polysemy.Error.Error' without the ability to be caught.

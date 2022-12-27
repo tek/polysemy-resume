@@ -1,17 +1,17 @@
--- |Resumption combinators, transforming an effect into 'Resumable' and 'Stop'.
+-- | Resumption combinators, transforming an effect into 'Resumable' and 'Stop'.
 module Polysemy.Resume.Resume where
 
 import Polysemy.Resume.Effect.Resumable (Resumable)
 import Polysemy.Resume.Effect.Stop (Stop, stop)
-import Polysemy.Resume.Resumable (runAsResumable)
-import Polysemy.Resume.Stop (runStop)
+import Polysemy.Resume.Interpreter.Resumable (runAsResumable)
+import Polysemy.Resume.Interpreter.Stop (runStop)
 
--- |Execute the action of a regular effect @eff@ so that any error of type @err@ that maybe be thrown by the (unknown)
+-- | Execute the action of a regular effect @eff@ so that any error of type @err@ that maybe be thrown by the (unknown)
 -- interpreter used for @eff@ will be caught here and handled by the @handler@ argument.
 -- This is similar to 'Polysemy.Error.catch' with the additional guarantee that the error will have to be explicitly
 -- matched, therefore preventing accidental failure to handle an error and bubbling it up to @main@.
 -- It also imposes a membership of @Resumable err eff@ on the program, requiring the interpreter for @eff@ to be adapted
--- with 'Polysemy.Resume.Resumable.resumable'.
+-- with 'Polysemy.Resume.Interpreter.Resumable.resumable'.
 --
 -- @
 -- data Resumer :: Effect where
@@ -37,7 +37,7 @@ resume sem handler =
   either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
 {-# inline resume #-}
 
--- |Operator version of 'resume'.
+-- | Operator version of 'resume'.
 --
 -- @since 0.2.0.0
 (!!) ::
@@ -50,7 +50,7 @@ resume sem handler =
   resume
 {-# inline (!!) #-}
 
--- Reinterpreting version of 'resume'.
+-- | Reinterpreting version of 'resume'.
 resumeRe ::
   ∀ err eff r a .
   Sem (eff : r) a ->
@@ -60,7 +60,7 @@ resumeRe sem handler =
   either handler pure =<< runStop (runAsResumable @err (raiseUnder2 sem))
 {-# inline resumeRe #-}
 
--- |Flipped variant of 'resume'.
+-- | Flipped variant of 'resume'.
 resuming ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -71,7 +71,7 @@ resuming =
   flip resume
 {-# inline resuming #-}
 
--- |Flipped variant of 'resumeRe'.
+-- | Flipped variant of 'resumeRe'.
 resumingRe ::
   ∀ err eff r a .
   (err -> Sem (Resumable err eff : r) a) ->
@@ -81,7 +81,7 @@ resumingRe =
   flip resumeRe
 {-# inline resumingRe #-}
 
--- |Variant of 'resume' that unconditionally recovers with a constant value.
+-- | Variant of 'resume' that unconditionally recovers with a constant value.
 resumeAs ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -92,7 +92,7 @@ resumeAs a =
   resuming @err \ _ -> pure a
 {-# inline resumeAs #-}
 
--- |Operator version of 'resumeAs'.
+-- | Operator version of 'resumeAs'.
 --
 -- @since 0.2.0.0
 (<!) ::
@@ -104,7 +104,7 @@ resumeAs a =
 (<!) =
   resumeAs @err
 
--- |Operator version of 'resumeAs', flipped version of '(<!)'.
+-- | Operator version of 'resumeAs', flipped version of '(<!)'.
 --
 -- @since 0.2.0.0
 (!>) ::
@@ -116,7 +116,7 @@ resumeAs a =
 (!>) =
   flip (resumeAs @err)
 
--- |Convenience specialization of 'resume' that silently discards errors for void programs.
+-- | Convenience specialization of 'resume' that silently discards errors for void programs.
 resume_ ::
   ∀ err eff r .
   Member (Resumable err eff) r =>
@@ -125,7 +125,7 @@ resume_ ::
 resume_ =
   resumeAs @err ()
 
--- |Variant of 'resume' that unconditionally recovers with an action.
+-- | Variant of 'resume' that unconditionally recovers with an action.
 --
 -- @since 0.2.0.0
 resumeWith ::
@@ -138,7 +138,7 @@ resumeWith ma ma' =
   resume @err ma (const ma')
 {-# inline resumeWith #-}
 
--- |Operator variant of 'resumeWith'.
+-- | Operator variant of 'resumeWith'.
 --
 -- @since 0.2.0.0
 (!>>) ::
@@ -151,7 +151,7 @@ resumeWith ma ma' =
   resumeWith @err
 {-# inline (!>>) #-}
 
--- |Variant of 'resuming' that unconditionally recovers with an action.
+-- | Variant of 'resuming' that unconditionally recovers with an action.
 --
 -- @since 0.2.0.0
 resumingWith ::
@@ -164,7 +164,7 @@ resumingWith ma' ma =
   resume @err ma (const ma')
 {-# inline resumingWith #-}
 
--- |Operator variant of 'resumingWith'.
+-- | Operator variant of 'resumingWith'.
 --
 -- @since 0.2.0.0
 (<<!) ::
@@ -177,7 +177,7 @@ resumingWith ma' ma =
   resumingWith @err
 {-# inline (<<!) #-}
 
--- |Variant of 'resume' that propagates the error to another 'Stop' effect after applying a function.
+-- | Variant of 'resume' that propagates the error to another 'Stop' effect after applying a function.
 resumeHoist ::
   ∀ err eff err' r a .
   Members [Resumable err eff, Stop err'] r =>
@@ -188,7 +188,7 @@ resumeHoist f =
   resuming (stop . f)
 {-# inline resumeHoist #-}
 
--- |Variant of 'resumeHoist' that uses a constant value.
+-- | Variant of 'resumeHoist' that uses a constant value.
 resumeHoistAs ::
   ∀ err eff err' r .
   Members [Resumable err eff, Stop err'] r =>
@@ -198,7 +198,7 @@ resumeHoistAs err =
   resumeHoist @err (const err)
 {-# inline resumeHoistAs #-}
 
--- |Variant of 'resumeHoist' that uses the unchanged error.
+-- | Variant of 'resumeHoist' that uses the unchanged error.
 restop ::
   ∀ err eff r .
   Members [Resumable err eff, Stop err] r =>
@@ -207,7 +207,7 @@ restop =
   resumeHoist @err id
 {-# inline restop #-}
 
--- |Variant of 'resume' that immediately produces an 'Either'.
+-- | Variant of 'resume' that immediately produces an 'Either'.
 resumeEither ::
   ∀ err eff r a .
   Member (Resumable err eff) r =>
@@ -216,7 +216,7 @@ resumeEither ::
 resumeEither ma =
   resuming (pure . Left) (Right <$> ma)
 
--- |Variant of 'resume' that takes a branch for error and success.
+-- | Variant of 'resume' that takes a branch for error and success.
 -- This allows the success branch to contain other resumptions.
 --
 -- @since 0.2.0.0
@@ -232,7 +232,7 @@ resumeOr ma fb err =
     Right a -> fb a
     Left e -> err e
 
--- |Variant of 'resuming' that takes a branch for error and success.
+-- | Variant of 'resuming' that takes a branch for error and success.
 -- This allows the success branch to contain other resumptions.
 --
 -- @since 0.2.0.0
@@ -246,7 +246,7 @@ resumingOr ::
 resumingOr err ma fb =
   resumeOr ma fb err
 
--- |Variant of 'resume' that propagates the error to an 'Error' effect after applying a function.
+-- | Variant of 'resume' that propagates the error to an 'Error' effect after applying a function.
 resumeHoistError ::
   ∀ err eff err' r a .
   Members [Resumable err eff, Error err'] r =>
@@ -257,7 +257,7 @@ resumeHoistError f =
   resuming (throw . f)
 {-# inline resumeHoistError #-}
 
--- |Variant of 'resumeHoistError' that uses the unchanged error.
+-- | Variant of 'resumeHoistError' that uses the unchanged error.
 resumeHoistErrorAs ::
   ∀ err eff err' r a .
   Members [Resumable err eff, Error err'] r =>
@@ -268,7 +268,7 @@ resumeHoistErrorAs err =
   resumeHoistError @err (const err)
 {-# inline resumeHoistErrorAs #-}
 
--- |Variant of 'resumeHoistError' that uses the unchanged error.
+-- | Variant of 'resumeHoistError' that uses the unchanged error.
 resumeError ::
   ∀ err eff r a .
   Members [Resumable err eff, Error err] r =>
@@ -278,6 +278,7 @@ resumeError =
   resumeHoistError @err id
 {-# inline resumeError #-}
 
+-- | Transform 'Stop' to 'Fail' using the supplied error message rendering function.
 stopToFailWith ::
   ∀ err r .
   Member Fail r =>
@@ -287,6 +288,7 @@ stopToFailWith f =
   either (fail . toString . f) pure <=< runStop
 {-# inline stopToFailWith #-}
 
+-- | Resume a computation, converting 'Stop' to 'Fail'.
 resumeFailWith ::
   ∀ err eff r .
   Members [Fail, Resumable err eff] r =>
@@ -296,6 +298,7 @@ resumeFailWith f =
   resuming (fail . toString . f)
 {-# inline resumeFailWith #-}
 
+-- | Transform 'Stop' to 'Fail' using 'show'.
 stopToFail ::
   ∀ err r .
   Show err =>
@@ -305,6 +308,7 @@ stopToFail =
   stopToFailWith show
 {-# inline stopToFail #-}
 
+-- | Resume a computation, converting 'Stop' to 'Fail' using 'show'.
 resumeFail ::
   ∀ err eff r .
   Show err =>

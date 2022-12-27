@@ -1,3 +1,4 @@
+-- |Description: The 'Resumable' effect.
 module Polysemy.Resume.Effect.Resumable where
 
 import Polysemy.Internal.Union (Weaving)

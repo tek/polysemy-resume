@@ -1,6 +1,8 @@
+{-# options_haddock prune #-}
 {-# options_ghc -Wno-redundant-constraints #-}
 
-module Polysemy.Resume.Resumable where
+-- | Description: Interpreters for 'Resumable'.
+module Polysemy.Resume.Interpreter.Resumable where
 
 import Polysemy.Error (Error (Throw))
 import Polysemy.Internal (Sem (Sem, runSem), liftSem, usingSem)
@@ -10,7 +12,7 @@ import Polysemy.Internal.Union (ElemOf, Weaving (Weaving), decomp, hoist, inj, i
 
 import Polysemy.Resume.Effect.Resumable (Resumable (..))
 import Polysemy.Resume.Effect.Stop (Stop, stop)
-import Polysemy.Resume.Stop (StopExc, runStop, stopOnError, stopToIOFinal)
+import Polysemy.Resume.Interpreter.Stop (StopExc, runStop, stopOnError, stopToIOFinal)
 
 type InterpreterTrans' eff eff' r r' =
   ∀ a b .
@@ -33,7 +35,7 @@ distribEither initialState result =
     Left err -> Left err <$ initialState
 {-# inline distribEither #-}
 
--- |Convert a bare interpreter for @eff@, which (potentially) uses 'Stop' to signal errors, into an interpreter for
+-- | Convert a bare interpreter for @eff@, which (potentially) uses 'Stop' to signal errors, into an interpreter for
 -- 'Resumable'.
 -- /Beware/: This will display unsound behaviour if:
 -- * the interpreter is wrapped with actions of another effect, as in:
@@ -72,7 +74,7 @@ resumable interpreter (Sem m) =
         k g
 {-# inline resumable #-}
 
--- |Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
+-- | Convenience combinator for turning an interpreter that doesn't use 'Stop' into a 'Resumable'.
 raiseResumable ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
   InterpreterTrans (Resumable err eff) eff r
@@ -90,7 +92,7 @@ raiseResumable interpreter =
     {-# inline normalize #-}
 {-# inline raiseResumable #-}
 
--- |Like 'resumable', but use exceptions instead of 'ExceptT'.
+-- | Like 'resumable', but use exceptions instead of 'Control.Monad.Trans.ExceptT'.
 resumableIO ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
   Exception (StopExc err) =>
@@ -109,10 +111,10 @@ resumableIO interpreter (Sem m) =
         k g
 {-# inline resumableIO #-}
 
--- |Like 'interpretResumable', but for higher-order effects.
+-- | Like 'interpretResumable', but for higher-order effects.
 interpretResumableH ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) .
-  -- |This handler function has @'Stop' err@ in its stack, allowing it to absorb errors.
+  -- | This handler function has @'Stop' err@ in its stack, allowing it to absorb errors.
   (∀ x r0 . eff (Sem r0) x -> Tactical (Resumable err eff) (Sem r0) (Stop err : r) x) ->
   InterpreterFor (Resumable err eff) r
 interpretResumableH handler (Sem m) =
@@ -134,7 +136,7 @@ interpretResumableH handler (Sem m) =
             Left err -> Left err <$ sOuter
 {-# inline interpretResumableH #-}
 
--- |Create an interpreter for @'Resumable' err eff@ by supplying a handler function for @eff@, analogous to
+-- | Create an interpreter for @'Resumable' err eff@ by supplying a handler function for @eff@, analogous to
 -- 'Polysemy.interpret'.
 -- If the handler throws errors with 'Stop', they will be absorbed into 'Resumable', to be caught by
 -- 'Polysemy.Resume.resume' in a downstream interpreter.
@@ -159,7 +161,7 @@ interpretResumable handler =
   interpretResumableH \ e -> liftT (handler e)
 {-# inline interpretResumable #-}
 
--- |Interceptor variant of 'interpretResumableH'.
+-- | Interceptor variant of 'interpretResumableH'.
 interceptResumableUsingH ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
   ElemOf (Resumable err eff) r ->
@@ -185,7 +187,7 @@ interceptResumableUsingH proof handler (Sem m) =
             Left err -> Left err <$ sOuter
 {-# inline interceptResumableUsingH #-}
 
--- |Interceptor variant of 'interpretResumable'.
+-- | Interceptor variant of 'interpretResumable'.
 interceptResumableUsing ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
   FirstOrder eff "interceptResumableUsing" =>
@@ -198,7 +200,7 @@ interceptResumableUsing proof f =
     liftT (f e)
 {-# inline interceptResumableUsing #-}
 
--- |Interceptor variant of 'interpretResumableH'.
+-- | Interceptor variant of 'interpretResumableH'.
 interceptResumableH ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
   Member (Resumable err eff) r =>
@@ -209,7 +211,7 @@ interceptResumableH =
   interceptResumableUsingH membership
 {-# inline interceptResumableH #-}
 
--- |Interceptor variant of 'interpretResumable'.
+-- | Interceptor variant of 'interpretResumable'.
 interceptResumable ::
   ∀ (err :: Type) (eff :: Effect) (r :: EffectRow) (a :: Type) .
   Member (Resumable err eff) r =>
@@ -222,7 +224,7 @@ interceptResumable f =
     liftT (f e)
 {-# inline interceptResumable #-}
 
--- |Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
+-- | Convert an interpreter for @eff@ that uses 'Error' into one using 'Stop' and wrap it using 'resumable'.
 resumableError ::
   ∀ (err :: Type) (eff :: Effect) r .
   InterpreterFor eff (Error err : Stop err : r) ->
@@ -231,7 +233,7 @@ resumableError interpreter =
   resumable (stopOnError . interpreter . raiseUnder)
 {-# inline resumableError #-}
 
--- |Convert an interpreter for @eff@ that throws errors of type @err@ into a @Resumable@, but limiting the errors
+-- | Convert an interpreter for @eff@ that throws errors of type @err@ into a @Resumable@, but limiting the errors
 -- handled by consumers to the type @handled@, which rethrowing 'Error's of type @unhandled@.
 --
 -- The function @canHandle@ determines how the errors are split.
@@ -280,7 +282,7 @@ resumableOr canHandle interpreter (Sem m) =
         k g
 {-# inline resumableOr #-}
 
--- |Variant of 'resumableOr' that uses 'Maybe' and rethrows the original error.
+-- | Variant of 'resumableOr' that uses 'Maybe' and rethrows the original error.
 resumableFor ::
   ∀ (err :: Type) (eff :: Effect) handled r .
   Member (Error err) r =>
@@ -294,7 +296,7 @@ resumableFor canHandle =
       maybeToRight err (canHandle err)
 {-# inline resumableFor #-}
 
--- |Reinterpreting variant of 'resumableFor'.
+-- | Reinterpreting variant of 'resumableFor'.
 catchResumable ::
   ∀ (err :: Type) (eff :: Effect) handled r .
   Members [eff, Error err] r =>
@@ -312,7 +314,7 @@ catchResumable canHandle (Sem m) =
         k g
 {-# inline catchResumable #-}
 
--- |Interpret an effect @eff@ by wrapping it in @Resumable@ and @Stop@ and leaving the rest up to the user.
+-- | Interpret an effect @eff@ by wrapping it in @Resumable@ and @Stop@ and leaving the rest up to the user.
 runAsResumable ::
   ∀ (err :: Type) (eff :: Effect) r .
   Members [Resumable err eff, Stop err] r =>

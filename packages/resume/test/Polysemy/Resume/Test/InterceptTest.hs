@@ -7,7 +7,7 @@ import Polysemy.Test (UnitTest, runTestAuto, (===))
 
 import Polysemy.Resume.Effect.Resumable (type (!!))
 import Polysemy.Resume.Effect.Stop (stop)
-import Polysemy.Resume.Resumable (interceptResumable, interpretResumable)
+import Polysemy.Resume.Interpreter.Resumable (interceptResumable, interpretResumable)
 import Polysemy.Resume.Resume (restop, (!!), (<!))
 
 data A :: Effect where

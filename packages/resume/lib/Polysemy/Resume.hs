@@ -1,3 +1,4 @@
+-- | Description: Polysemy effects for cross-interpreter error tracking.
 module Polysemy.Resume (
   -- * Introduction
   -- $intro
@@ -63,7 +64,7 @@ module Polysemy.Resume (
   stopToFail,
   resumeFailWith,
   resumeFail,
-  module Polysemy.Resume.Stop,
+  module Polysemy.Resume.Interpreter.Stop,
 ) where
 
 import Polysemy.Resume.Effect.Resumable (Resumable, type (!!))
@@ -88,7 +89,7 @@ import Polysemy.Resume.Interpreter.Scoped (
   interpretScopedResumableWith_,
   interpretScopedResumable_,
   )
-import Polysemy.Resume.Resumable (
+import Polysemy.Resume.Interpreter.Resumable (
   catchResumable,
   interceptResumable,
   interceptResumableH,
@@ -130,7 +131,7 @@ import Polysemy.Resume.Resume (
   (<!),
   (<<!),
   )
-import Polysemy.Resume.Stop (
+import Polysemy.Resume.Interpreter.Stop (
   mapStop,
   replaceStop,
   runStop,
@@ -180,7 +181,7 @@ import Polysemy.Resume.Stop (
 --
 -- If we want to use @Stopper@ in the interpreter of another effect, we have no way of knowing about the errors thrown
 -- by its interpreter, even though we can catch @Boom@!
--- This library makes the connection explicit by changing 'Polysemy.Error.Error' to 'Stop' and wrapping 'Stopper' in
+-- This library makes the connection explicit by changing 'Polysemy.Error.Error' to 'Stop' and wrapping @Stopper@ in
 -- 'Resumable' when using it in an effect stack:
 
 -- $partial
