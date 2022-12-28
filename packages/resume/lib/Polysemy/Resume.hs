@@ -4,6 +4,7 @@ module Polysemy.Resume (
   -- $intro
   module Polysemy.Resume.Effect.Stop,
   module Polysemy.Resume.Effect.Resumable,
+
   -- * Resuming a Stopped Computation
   resume,
   (!!),
@@ -34,9 +35,11 @@ module Polysemy.Resume (
   interpretScopedRWith,
   interpretScopedRWithH,
   interpretScopedRWith_,
+
   -- * Partial Handlers
   -- $partial
   resumableOr,
+
   -- * Various Combinators
   resumeAs,
   (<!),

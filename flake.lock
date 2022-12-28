@@ -15,21 +15,6 @@
         "type": "github"
       }
     },
-    "flake-utils_2": {
-      "locked": {
-        "lastModified": 1659877975,
-        "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "c0e246b9b83f637f4681389ecabcb2681b4f3af0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "hix": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -83,38 +68,6 @@
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "b139e44d78c36c69bcbb825b20dbfa51e7738347",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2009": {
-      "locked": {
-        "lastModified": 1651477912,
-        "narHash": "sha256-YDFgJElf0ZL977+fo6ueQAmpb6lwrw1lzDlxLEINVXE=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "66b0db71f463164486a36dded50bedee185e45c2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "release-20.09",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2105": {
-      "locked": {
-        "lastModified": 1659914493,
-        "narHash": "sha256-lkA5X3VNMKirvA+SUzvEhfA7XquWLci+CGi505YFAIs=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "022caabb5f2265ad4006c1fa5b1ebe69fb0c3faf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "release-21.05",
-        "repo": "nixpkgs",
         "type": "github"
       }
     },
@@ -183,32 +136,9 @@
         "type": "github"
       }
     },
-    "polysemy": {
-      "inputs": {
-        "flake-utils": "flake-utils_2",
-        "nixpkgs_2009": "nixpkgs_2009",
-        "nixpkgs_2105": "nixpkgs_2105",
-        "unstable": "unstable"
-      },
-      "locked": {
-        "lastModified": 1672166455,
-        "narHash": "sha256-EwhSEuZE4C/V4y8M/cpjwNfvjrYcXuxpieFzzytyXAk=",
-        "owner": "polysemy-research",
-        "repo": "polysemy",
-        "rev": "6aa86e859d40649cc67117b04ecadbf2a9c3c19d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "polysemy-research",
-        "ref": "torsten/scoped-switch-interpreter",
-        "repo": "polysemy",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
-        "hix": "hix",
-        "polysemy": "polysemy"
+        "hix": "hix"
       }
     },
     "thax": {
@@ -223,22 +153,6 @@
       "original": {
         "owner": "tek",
         "repo": "thax",
-        "type": "github"
-      }
-    },
-    "unstable": {
-      "locked": {
-        "lastModified": 1672057183,
-        "narHash": "sha256-GN7/10DNNvs1FPj9tlZA2qgNdFuYKKuS3qlHTqAxasQ=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "b139e44d78c36c69bcbb825b20dbfa51e7738347",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "nixpkgs-unstable",
-        "repo": "nixpkgs",
         "type": "github"
       }
     }
