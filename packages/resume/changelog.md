@@ -1,5 +1,9 @@
 # Unreleased
 
+# 0.7.0.0
+
+* Rewrite `Scoped` interpreters in Polysemy 1.9 style.
+
 # 0.6.0.0
 
 * Add `replaceStop`, shorthand for `mapStop . const`.
