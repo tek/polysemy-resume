@@ -34,7 +34,9 @@ let
     copyright = "2022 Torsten Schmits";
     category = "Error";
     build-type = "Simple";
-    github = "tek/polysemy-resume";
+    git = "https://git.tryp.io/tek/polysemy-resume";
+    homepage = "https://git.tryp.io/tek/polysemy-resume";
+    bug-reports = "https://github.com/tek/polysemy-resume/issues";
   };
 
   options.ghc-options = [
