@@ -146,6 +146,7 @@ import Polysemy.Resume.Interpreter.Stop (
   stopOnError,
   stopOnErrorWith,
   stopToError,
+  stopToErrorIO,
   stopToErrorWith,
   stopToIOFinal,
   stopTryAny,
