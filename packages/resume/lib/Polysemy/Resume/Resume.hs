@@ -1,9 +1,9 @@
 -- | Resumption combinators, transforming an effect into 'Resumable' and 'Stop'.
 module Polysemy.Resume.Resume where
 
-import Polysemy.Resume.Effect.Resumable (Resumable)
+import Polysemy.Resume.Effect.Resumable (Resumable (Resumable))
+import Polysemy.Resume.Effect.RunStop (RunStop)
 import Polysemy.Resume.Effect.Stop (Stop, stop)
-import Polysemy.Resume.Interpreter.Resumable (runAsResumable)
 import Polysemy.Resume.Interpreter.Stop (runStop)
 
 -- | Execute the action of a regular effect @eff@ so that any error of type @err@ that maybe be thrown by the (unknown)
@@ -33,8 +33,8 @@ resume ::
   Sem (eff : r) a ->
   (err -> Sem r a) ->
   Sem r a
-resume sem handler =
-  either handler pure =<< runStop (runAsResumable @err (raiseUnder sem))
+resume ma handler =
+  leftA handler =<< transform @(Scoped eff () (Either err)) Resumable (scoped () (raiseUnder ma))
 {-# inline resume #-}
 
 -- | Operator version of 'resume'.
@@ -56,8 +56,8 @@ resumeRe ::
   Sem (eff : r) a ->
   (err -> Sem (Resumable err eff : r) a) ->
   Sem (Resumable err eff : r) a
-resumeRe sem handler =
-  either handler pure =<< runStop (runAsResumable @err (raiseUnder2 sem))
+resumeRe ma handler =
+  resume (raiseUnder ma) handler
 {-# inline resumeRe #-}
 
 -- | Flipped variant of 'resume'.
@@ -281,7 +281,7 @@ resumeError =
 -- | Transform 'Stop' to 'Fail' using the supplied error message rendering function.
 stopToFailWith ::
   ∀ err r .
-  Member Fail r =>
+  Members [Fail, RunStop] r =>
   (err -> Text) ->
   InterpreterFor (Stop err) r
 stopToFailWith f =
@@ -302,7 +302,7 @@ resumeFailWith f =
 stopToFail ::
   ∀ err r .
   Show err =>
-  Member Fail r =>
+  Members [Fail, RunStop] r =>
   InterpreterFor (Stop err) r
 stopToFail =
   stopToFailWith show

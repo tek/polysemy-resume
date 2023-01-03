@@ -4,7 +4,8 @@ module Polysemy.Resume.ExampleTest where
 
 import Polysemy.Test (UnitTest, assertRight, runTestAuto, (===))
 
-import Polysemy.Resume (Stop, resumable, resumableFor, resume, stop, type (!!))
+import Polysemy.Resume (Stop, interpretResumableFor, resume, stop, type (!!))
+import Polysemy.Resume.Interpreter.RunStop (interpretRunStop)
 
 data Stopper :: Effect where
   StopBang :: Stopper m ()
@@ -21,24 +22,23 @@ data Boom =
   Boom { unBoom :: Text }
   |
   Bang { unBang :: Int }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 newtype Blip =
   Blip { unBlip :: Int }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 bangOnly :: Boom -> Maybe Blip
 bangOnly = \case
   Bang n -> Just (Blip n)
   Boom _ -> Nothing
 
-interpretStopper ::
+handleStopper ::
   Member (Stop Boom) r =>
-  InterpreterFor Stopper r
-interpretStopper =
-  interpret \case
-    StopBang -> stop (Bang 13)
-    StopBoom -> stop (Boom "ouch")
+  Stopper z a -> Sem r a
+handleStopper = \case
+  StopBang -> stop (Bang 13)
+  StopBoom -> stop (Boom "ouch")
 
 interpretResumerPartialUnhandled ::
   Member (Stopper !! Blip) r =>
@@ -66,7 +66,6 @@ interpretResumer =
 
 test_example :: UnitTest
 test_example =
-  runTestAuto do
-    assertRight 39 =<< runError (resumableFor bangOnly interpretStopper (interpretResumerPartial mainProgram))
-    (Left (Boom "ouch") ===) =<< runError (resumableFor bangOnly interpretStopper (interpretResumerPartialUnhandled mainProgram))
-    (237 ===) =<< (resumable interpretStopper) (interpretResumer mainProgram)
+  runTestAuto $ interpretRunStop do
+    assertRight 39 =<< runError (interpretResumableFor bangOnly handleStopper (interpretResumerPartial mainProgram))
+    (Left (Boom "ouch") ===) =<< runError (interpretResumableFor bangOnly handleStopper (interpretResumerPartialUnhandled mainProgram))

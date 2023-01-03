@@ -29,14 +29,17 @@ library
   exposed-modules:
       Polysemy.Resume
       Polysemy.Resume.Effect.Resumable
+      Polysemy.Resume.Effect.RunStop
       Polysemy.Resume.Effect.Stop
       Polysemy.Resume.Interpreter.Resumable
+      Polysemy.Resume.Interpreter.RunStop
       Polysemy.Resume.Interpreter.Scoped
       Polysemy.Resume.Interpreter.Stop
       Polysemy.Resume.Resume
   hs-source-dirs:
       lib
   default-extensions:
+      StandaloneKindSignatures
       AllowAmbiguousTypes
       ApplicativeDo
       BangPatterns
@@ -102,7 +105,7 @@ library
   build-depends:
       base >=4.12 && <5
     , incipit-core >=0.4
-    , polysemy ==1.9.*
+    , polysemy >=2 && <2.1
     , transformers
   mixins:
       base hiding (Prelude)
@@ -115,12 +118,14 @@ test-suite polysemy-resume-unit
   main-is: Main.hs
   other-modules:
       Polysemy.Resume.ExampleTest
-      Polysemy.Resume.HigherOrderTest
+      Polysemy.Resume.Test.HigherOrderTest
       Polysemy.Resume.Test.InterceptTest
       Polysemy.Resume.Test.ScopedTest
+      Polysemy.Resume.Test.V2Test
   hs-source-dirs:
       test
   default-extensions:
+      StandaloneKindSignatures
       AllowAmbiguousTypes
       ApplicativeDo
       BangPatterns
@@ -186,8 +191,8 @@ test-suite polysemy-resume-unit
   build-depends:
       base >=4.12 && <5
     , incipit-core >=0.4
-    , polysemy ==1.9.*
-    , polysemy-plugin >=0.4.3 && <0.5
+    , polysemy
+    , polysemy-plugin ==0.5.*
     , polysemy-resume
     , polysemy-test >=0.6
     , stm

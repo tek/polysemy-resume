@@ -6,70 +6,71 @@ module Polysemy.Resume.Interpreter.Stop where
 import qualified Control.Exception as Base
 import Control.Exception (throwIO)
 import Control.Monad.Trans.Except (ExceptT (ExceptT), runExceptT, throwE)
-import Data.Typeable (typeRep)
-import Polysemy.Final (getInitialStateS, interpretFinal, runS, withStrategicToFinal)
-import Polysemy.Internal (Sem (Sem), usingSem)
-import Polysemy.Internal.Union (Weaving (Weaving), decomp, hoist, weave)
+import Data.Unique (Unique, hashUnique, newUnique)
+import GHC.Exts (Any)
+import Polysemy.Error (Error (Throw))
+import Polysemy.Final (controlFinal, interpretFinal)
+import Polysemy.Internal (Sem (Sem))
+import Polysemy.Internal.Union (Weaving (Weaving), decomp, liftHandlerWithNat)
 import qualified Text.Show
+import Unsafe.Coerce (unsafeCoerce)
 
+import Polysemy.Resume.Effect.RunStop (RunStop (RunStop))
 import Polysemy.Resume.Effect.Stop (Stop (Stop), stop)
 
 -- |Equivalent of 'runError'.
-runStop ::
+runStopPure ::
   Sem (Stop err : r) a ->
   Sem r (Either err a)
-runStop (Sem m) =
+runStopPure (Sem m) =
   Sem \ k ->
     runExceptT $ m \ u ->
       case decomp u of
         Left x ->
-          ExceptT $ k $ weave (Right ()) (either (pure . Left) runStop) rightToMaybe x
-        Right (Weaving (Stop err) _ _ _ _) ->
+          liftHandlerWithNat (ExceptT . runStopPure) k x
+        Right (Weaving (Stop err) _ _ _) ->
           throwE err
-{-# inline runStop #-}
 
 -- | Internal type used to tag exceptions thrown by 'Stop' interpreters.
-newtype StopExc err =
-  StopExc { unStopExc :: err }
-  deriving stock (Typeable)
+data StopExc = StopExc !Unique Any
 
-instance {-# overlappable #-} Typeable err => Show (StopExc err) where
-  show =
-    mappend "StopExc: " . show . typeRep
+instance Show StopExc where
+  show (StopExc uid _) =
+    "stopToIOFinal: Escaped opaque exception. Unique hash is: " <>
+    show (hashUnique uid) <> "This should only happen if the computation that " <>
+    "threw the exception was somehow invoked outside of the argument of 'stopToIOFinal'; " <>
+    "for example, if you 'async' an exceptional computation inside of the argument " <>
+    "provided to 'stopToIOFinal', and then 'await' on it *outside* of the argument " <>
+    "provided to 'stopToIOFinal'. If that or any similar shenanigans seems unlikely, " <>
+    "please open an issue on the GitHub repository."
 
-instance Show (StopExc Text) where
-  show (StopExc err) =
-    "StopExc " <> show err
+instance Exception StopExc
 
-instance {-# overlappable #-} Typeable err => Exception (StopExc err)
-
-instance Exception (StopExc Text)
-
--- |Run 'Stop' by throwing exceptions.
 runStopAsExcFinal ::
-  ∀ err r a .
-  Exception (StopExc err) =>
+  ∀ e r a .
   Member (Final IO) r =>
-  Sem (Stop err : r) a ->
+  Unique ->
+  Sem (Stop e : r) a ->
   Sem r a
-runStopAsExcFinal =
-  interpretFinal \case
-    Stop err ->
-      pure (throwIO (StopExc err))
-{-# inline runStopAsExcFinal #-}
+runStopAsExcFinal uid =
+  interpretFinal @IO \ (Stop e) ->
+    embed (throwIO (StopExc uid (unsafeCoerce e)))
 
--- |Run 'Stop' by throwing and catching exceptions.
+catchWithUid :: forall e a. Unique -> IO a -> (e -> IO a) -> IO a
+catchWithUid uid m h = Base.catch m $ \exc@(StopExc uid' e) ->
+  if uid == uid' then h (unsafeCoerce e) else throwIO exc
+{-# inline catchWithUid #-}
+
 stopToIOFinal ::
-  ∀ err r a .
-  Exception (StopExc err) =>
+  ∀ e r a .
   Member (Final IO) r =>
-  Sem (Stop err : r) a ->
-  Sem r (Either err a)
+  Sem (Stop e ': r) a ->
+  Sem r (Either e a)
 stopToIOFinal sem =
-  withStrategicToFinal @IO do
-    m' <- runS (runStopAsExcFinal sem)
-    s <- getInitialStateS
-    pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> Base.try m'
+  controlFinal \ lower -> do
+    uid <- newUnique
+    catchWithUid @e uid (lower (Right <$> runStopAsExcFinal uid sem)) \ e ->
+      lower (pure (Left e))
 {-# inline stopToIOFinal #-}
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
@@ -144,7 +145,7 @@ stopToErrorWith ::
   Sem (Stop err : r) a ->
   Sem r a
 stopToErrorWith f =
-  either (throw . f) pure <=< runStop
+  transform \ (Stop err) -> Throw (f err)
 {-# inline stopToErrorWith #-}
 
 -- |Convert a program using 'Stop' to one using 'Error'.
@@ -157,17 +158,6 @@ stopToError =
   stopToErrorWith id
 {-# inline stopToError #-}
 
--- |Convert a program using 'Stop' to one using 'Error'.
-stopToErrorIO ::
-  ∀ err r a .
-  Exception (StopExc err) =>
-  Members [Error err, Final IO] r =>
-  Sem (Stop err : r) a ->
-  Sem r a
-stopToErrorIO =
-  either throw pure <=< stopToIOFinal
-{-# inline stopToErrorIO #-}
-
 -- |Map over the error type in a 'Stop'.
 mapStop ::
   ∀ err e' r a .
@@ -175,13 +165,8 @@ mapStop ::
   (err -> e') ->
   Sem (Stop err : r) a ->
   Sem r a
-mapStop f (Sem m) =
-  Sem \ k -> m \ u ->
-    case decomp u of
-      Left x ->
-        k (hoist (mapStop f) x)
-      Right (Weaving (Stop err) _ _ _ _) ->
-        usingSem k (send $ Stop (f err))
+mapStop f =
+  transform \ (Stop err) -> Stop (f err)
 {-# inline mapStop #-}
 
 -- |Replace the error in a 'Stop' with another type.
@@ -252,3 +237,10 @@ stopTryAny ::
 stopTryAny f =
   stopEitherWith f <=< tryAny
 {-# inline stopTryAny #-}
+
+runStop ::
+  Member RunStop r =>
+  Sem (Stop err : r) a ->
+  Sem r (Either err a)
+runStop =
+  transform RunStop . scoped1 (Const ()) . raiseUnder

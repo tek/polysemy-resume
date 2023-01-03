@@ -1,20 +1,17 @@
 -- |Description: The 'Resumable' effect.
 module Polysemy.Resume.Effect.Resumable where
 
-import Polysemy.Internal.Union (Weaving)
-
 -- |Effect that wraps another effect @eff@, marking it as throwing errors of type @err@ using
--- 'Polysemy.Resume.Data.Stop.Stop'.
-data Resumable err eff :: Effect where
-  Resumable ::
-    ∀ err eff r a .
-    Weaving eff (Sem r) a ->
-    Resumable err eff (Sem r) (Either err a)
+-- 'Polysemy.Resume.Effect.Stop.Stop'.
+type Resumable :: Type -> Effect -> Effect
+newtype Resumable err eff m a =
+  Resumable { unResumable :: Scoped eff () (Either err) m a }
 
 -- |Infix alias for 'Resumable'.
 --
 -- @
 -- Member (Stopper !! Boom) r =>
 -- @
+type (!!) :: Effect -> Type -> Effect
 type eff !! err =
   Resumable err eff

@@ -80,13 +80,13 @@ in {
   polysemy-resume = merge (project "polysemy-resume" "Polysemy-Resume") {
     synopsis = "Polysemy error tracking";
     library.dependencies = [
-      "polysemy ^>= 1.9"
+      "polysemy ^>= 2"
       "transformers"
     ];
     tests.polysemy-resume-unit = exe "polysemy-resume" "test" {
       dependencies = [
-        "polysemy ^>= 1.9"
-        "polysemy-plugin ^>= 0.4.3"
+        "polysemy"
+        "polysemy-plugin ^>= 0.5"
         "polysemy-resume"
         "polysemy-test >= 0.6"
         "stm"

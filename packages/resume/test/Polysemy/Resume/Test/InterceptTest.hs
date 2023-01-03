@@ -6,8 +6,10 @@ import Control.Concurrent.STM (newTVarIO)
 import Polysemy.Test (UnitTest, runTestAuto, (===))
 
 import Polysemy.Resume.Effect.Resumable (type (!!))
+import Polysemy.Resume.Effect.RunStop (RunStop)
 import Polysemy.Resume.Effect.Stop (stop)
 import Polysemy.Resume.Interpreter.Resumable (interceptResumable, interpretResumable)
+import Polysemy.Resume.Interpreter.RunStop (interpretRunStop)
 import Polysemy.Resume.Resume (restop, (!!), (<!))
 
 data A :: Effect where
@@ -18,7 +20,7 @@ data A :: Effect where
 makeSem ''A
 
 interpretA ::
-  Member (AtomicState Int) r =>
+  Members [AtomicState Int, RunStop] r =>
   InterpreterFor (A !! Int) r
 interpretA =
   interpretResumable \case
@@ -32,7 +34,7 @@ interpretA =
       pure (-1)
 
 interceptA1 ::
-  Members [A !! Int, AtomicState Int] r =>
+  Members [A !! Int, AtomicState Int, RunStop] r =>
   Sem r a ->
   Sem r a
 interceptA1 =
@@ -46,7 +48,7 @@ interceptA1 =
       stop (23)
 
 interceptA2 ::
-  Members [A !! Int, AtomicState Int] r =>
+  Members [A !! Int, AtomicState Int, RunStop] r =>
   Sem r a ->
   Sem r a
 interceptA2 =
@@ -60,7 +62,7 @@ interceptA2 =
 
 test_intercept :: UnitTest
 test_intercept =
-  runTestAuto do
+  runTestAuto $ interpretRunStop do
     tv <- embed (newTVarIO 0)
     i <- runAtomicStateTVar tv $ interpretA $ interceptA1 $ interceptA2 do
       i1 <- a1 !! \ i -> fail ("first failed with: " <> show i)
