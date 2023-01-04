@@ -4,35 +4,33 @@ module Polysemy.Resume (
   -- $intro
   module Polysemy.Resume.Effect.Stop,
   module Polysemy.Resume.Effect.Resumable,
+  module Polysemy.Resume.Effect.RunStop,
 
   -- * Resuming a Stopped Computation
   resume,
   (!!),
   interpretResumable,
   interpretResumableH,
+  runResumable,
+  runResumableWith,
   interceptResumable,
   interceptResumableH,
   interceptResumableUsing,
   interceptResumableUsingH,
   raiseResumable,
-  -- interpretScopedResumable,
-  -- interpretScopedResumableH,
-  -- interpretScopedResumable_,
-  -- interpretScopedResumableWith,
-  -- interpretScopedResumableWithH,
-  -- interpretScopedResumableWith_,
-  -- interpretResumableScoped,
-  -- interpretResumableScopedH,
-  -- interpretResumableScoped_,
-  -- interpretResumableScopedWith,
-  -- interpretResumableScopedWithH,
-  -- interpretResumableScopedWith_,
-  -- interpretScopedR,
-  -- interpretScopedRH,
-  -- interpretScopedR_,
-  -- interpretScopedRWith,
-  -- interpretScopedRWithH,
-  -- interpretScopedRWith_,
+
+  -- ** Combined interpreters for Scoped
+  runScopedResumable,
+  runScopedResumable_,
+  interpretScopedResumable,
+  interpretScopedResumableH,
+  interpretScopedResumable_,
+  interpretScopedResumableWith,
+  interpretScopedResumableWithH,
+  interpretScopedResumableWith_,
+  interpretResumableScoped,
+  interpretResumableScopedH,
+  interpretResumableScoped_,
 
   -- * Partial Handlers
   -- $partial
@@ -40,6 +38,9 @@ module Polysemy.Resume (
   interpretResumablePartial,
   interpretResumableForH,
   interpretResumableFor,
+
+  -- * Interpreters for 'RunStop'
+  module Polysemy.Resume.Interpreter.RunStop,
 
   -- * Various Combinators
   resumeAs,
@@ -68,6 +69,7 @@ module Polysemy.Resume (
 ) where
 
 import Polysemy.Resume.Effect.Resumable (Resumable, type (!!))
+import Polysemy.Resume.Effect.RunStop (RunStop)
 import Polysemy.Resume.Effect.Stop (Stop (..), stop)
 import Polysemy.Resume.Interpreter.Resumable (
   interceptResumable,
@@ -81,26 +83,22 @@ import Polysemy.Resume.Interpreter.Resumable (
   interpretResumablePartial,
   interpretResumablePartialH,
   raiseResumable,
+  runResumable,
+  runResumableWith,
   )
+import Polysemy.Resume.Interpreter.RunStop
 import Polysemy.Resume.Interpreter.Scoped (
-  -- interpretResumableScoped,
-  -- interpretResumableScopedH,
-  -- interpretResumableScopedWith,
-  -- interpretResumableScopedWithH,
-  -- interpretResumableScopedWith_,
-  -- interpretResumableScoped_,
-  -- interpretScopedR,
-  -- interpretScopedRH,
-  -- interpretScopedRWith,
-  -- interpretScopedRWithH,
-  -- interpretScopedRWith_,
-  -- interpretScopedR_,
-  -- interpretScopedResumable,
-  -- interpretScopedResumableH,
-  -- interpretScopedResumableWith,
-  -- interpretScopedResumableWithH,
-  -- interpretScopedResumableWith_,
-  -- interpretScopedResumable_,
+  interpretResumableScoped,
+  interpretResumableScopedH,
+  interpretResumableScoped_,
+  interpretScopedResumable,
+  interpretScopedResumableH,
+  interpretScopedResumableWith,
+  interpretScopedResumableWithH,
+  interpretScopedResumableWith_,
+  interpretScopedResumable_,
+  runScopedResumable,
+  runScopedResumable_,
   )
 import Polysemy.Resume.Interpreter.Stop (
   mapStop,
