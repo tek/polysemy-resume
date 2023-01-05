@@ -98,7 +98,7 @@ handleH1 n = \case
 
 test_scopedResumable :: UnitTest
 test_scopedResumable =
-  runTestAuto $ interpretRunStop $ interpretScopedResumableH @H1 @Int @Int @Int scopeH1 handleH1 do
+  runTestAuto $ interpretRunStop $ interpretScopedResumableH @H1 @Int @Int @Int scopeH1 (\ x -> handleH1 x) do
     (i1, i2, i3, i4, i5) <- resumeAs @Int @(Scoped_ H1 Int) (-50, -100, -200, -500, -700) $ scoped_ @H1 @Int 20 do
       i1 <- h1a do
         h1b
@@ -145,7 +145,7 @@ scopeR (Par n) use = do
 
 test_scopedResumableWith :: UnitTest
 test_scopedResumableWith =
-  runTestAuto $ interpretRunStop $ interpretScopedResumableWithH @'[F] scopeR handleRE do
+  runTestAuto $ interpretRunStop $ interpretScopedResumableWithH @'[F] scopeR (\ x -> handleRE x) do
     i1 <- scoped_ 20 e1 !! pure
     i2 <- scoped_ 23 e2 !! pure
     25 === i1
@@ -177,7 +177,7 @@ handleRs n = \case
 
 test_resumableScoped :: UnitTest
 test_resumableScoped =
-  runTestAuto $ interpretRunStop $ interpretResumableScopedH @Int @Int @Rs @Int scopeRs handleRs do
+  runTestAuto $ interpretRunStop $ interpretResumableScopedH @Int @Int @Rs @Int scopeRs (\ x -> handleRs x) do
     (i1, i2, i3, i4, i5) <- scoped_ 10000 do
       i1 <- resuming pure $ rs1 do
         rs2
@@ -236,7 +236,7 @@ interpretRsw n0 =
 
 test_resumableScopedWith :: UnitTest
 test_resumableScopedWith =
-  runTestAuto $ interpretRunStop $ runScoped_ interpretRsw do
+  runTestAuto $ interpretRunStop $ runScoped_ (\ x -> interpretRsw x) do
     (i1, i2, i3, i4, i5) <- scoped_ 10000 do
       i1 <- resuming pure $ rsw1 do
         rsw2
@@ -322,7 +322,7 @@ interpretRsrw n =
 
 test_scopedRWith :: UnitTest
 test_scopedRWith =
-  runTestAuto $ interpretRunStop $ runResumable (runScoped_ interpretRsrw) do
+  runTestAuto $ interpretRunStop $ runResumable (runScoped_ (\ x -> interpretRsrw x)) do
     (i1, i2, i3, i4, i5) <- resuming (\ i -> pure (round @Double i, round i, round i, round i, round i)) $ scoped_ 10000 do
       i1 <- resuming pure $ rsr1 do
         rsr2
