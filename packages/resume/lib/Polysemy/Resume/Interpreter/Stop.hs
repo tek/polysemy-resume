@@ -242,6 +242,7 @@ stopTryAny f =
 {-# inline stopTryAny #-}
 
 runStop ::
+  ∀ e r a .
   Member RunStop r =>
   Sem (Stop e : r) a ->
   Sem r (Either e a)
