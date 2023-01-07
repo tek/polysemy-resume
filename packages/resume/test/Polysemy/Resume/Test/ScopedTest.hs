@@ -3,7 +3,6 @@
 module Polysemy.Resume.Test.ScopedTest where
 
 import Control.Concurrent.STM (TVar, atomically, newTVarIO, readTVarIO, writeTVar)
-import Polysemy.Membership (Raise)
 import Polysemy.Opaque (Opaque)
 import Polysemy.Test (UnitTest, runTestAuto, unitTest, (===))
 import Test.Tasty (TestTree, testGroup)
@@ -37,7 +36,7 @@ data F :: Effect where
 makeSem ''F
 
 type Handler e r =
-  ∀ z x t . e z x -> Sem (HigherOrder z t e r r : r) x
+  ∀ z x t . e z x -> Sem (HigherOrder z t e r : r) x
 
 handleE ::
   Member (Embed IO) r =>
@@ -99,16 +98,16 @@ handleH1 n = \case
 test_scopedResumable :: UnitTest
 test_scopedResumable =
   runTestAuto $ interpretRunStop $ interpretScopedResumableH @H1 @Int @Int @Int scopeH1 (\ x -> handleH1 x) do
-    (i1, i2, i3, i4, i5) <- resumeAs @Int @(Scoped_ H1 Int) (-50, -100, -200, -500, -700) $ scoped_ @H1 @Int 20 do
+    (i1, i2, i3, i4, i5) <- resumeAs @Int @(Scoped H1 Int) (-50, -100, -200, -500, -700) $ scoped @H1 @Int 20 do
       i1 <- h1a do
         h1b
-      i2 <- resumeAs @Int @(Scoped_ H1 Int) (-1000) $ scoped_ @H1 @Int 23 do
+      i2 <- resumeAs @Int @(Scoped H1 Int) (-1000) $ scoped @H1 @Int 23 do
         h1a do
           h1b
-      i3 <- resuming pure $ scoped_ @H1 @Int 5000 do
+      i3 <- resuming pure $ scoped @H1 @Int 5000 do
         h1a do
           h1c
-      i4 <- resuming pure $ scoped_ @H1 @Int (-1) do
+      i4 <- resuming pure $ scoped @H1 @Int (-1) do
         h1b
       i5 <- h1d do
         h1a h1b
@@ -146,8 +145,8 @@ scopeR (Par n) use = do
 test_scopedResumableWith :: UnitTest
 test_scopedResumableWith =
   runTestAuto $ interpretRunStop $ interpretScopedResumableWithH @'[F] scopeR (\ x -> handleRE x) do
-    i1 <- scoped_ 20 e1 !! pure
-    i2 <- scoped_ 23 e2 !! pure
+    i1 <- scoped 20 e1 !! pure
+    i2 <- scoped 23 e2 !! pure
     25 === i1
     57 === i2
 
@@ -164,11 +163,10 @@ scopeRs n use =
   use (n + 1)
 
 handleRs ::
-  Raise rPre r =>
   Member (Stop Int) r =>
   Int ->
   Rs z x ->
-  Sem (HigherOrder z t Rs rPre r : r) x
+  Sem (HigherOrder z t Rs r : r) x
 handleRs n = \case
   Rs1 ma -> interpretH (handleRs (n + 1000000)) (runH' ma)
   Rs2 -> pure (n + 20)
@@ -178,7 +176,7 @@ handleRs n = \case
 test_resumableScoped :: UnitTest
 test_resumableScoped =
   runTestAuto $ interpretRunStop $ interpretResumableScopedH @Int @Int @Rs @Int scopeRs (\ x -> handleRs x) do
-    (i1, i2, i3, i4, i5) <- scoped_ 10000 do
+    (i1, i2, i3, i4, i5) <- scoped 10000 do
       i1 <- resuming pure $ rs1 do
         rs2
       i2 <- resuming pure $ rs3 do
@@ -186,7 +184,7 @@ test_resumableScoped =
       i3 <- rs2 !! pure
       i4 <- resuming pure $ rs1 do
         rs4
-      i5 <- raise $ scoped_ @(Rs !! Int) @Int 100000 do
+      i5 <- raise $ scoped @(Rs !! Int) @Int 100000 do
         resumeAs 1000 $ rs1 rs2
       pure (i1, i2, i3, i4, i5)
     1010021 === i1
@@ -214,11 +212,10 @@ scopeRsw n use =
   use (n + 1)
 
 handleRsw ::
-  Raise rPre r =>
   Members [RswExtra, Stop Int] r =>
   Int ->
   Rsw z x ->
-  Sem (HigherOrder z t Rsw rPre r : r) x
+  Sem (HigherOrder z t Rsw r : r) x
 handleRsw n = \case
   Rsw1 ma -> interpretH (handleRsw (n + 1000000)) (runH' ma)
   Rsw2 -> pure . (n +) =<< rswExtra
@@ -236,8 +233,8 @@ interpretRsw n0 =
 
 test_resumableScopedWith :: UnitTest
 test_resumableScopedWith =
-  runTestAuto $ interpretRunStop $ runScoped_ (\ x -> interpretRsw x) do
-    (i1, i2, i3, i4, i5) <- scoped_ 10000 do
+  runTestAuto $ interpretRunStop $ runScoped (\ x -> interpretRsw x) do
+    (i1, i2, i3, i4, i5) <- scoped 10000 do
       i1 <- resuming pure $ rsw1 do
         rsw2
       i2 <- resuming pure $ rsw3 do
@@ -245,7 +242,7 @@ test_resumableScopedWith =
       i3 <- rsw2 !! pure
       i4 <- resuming pure $ rsw1 do
         rsw4
-      i5 <- raise $ scoped_ @(Rsw !! Int) 100000 do
+      i5 <- raise $ scoped @(Rsw !! Int) 100000 do
         resumeAs 1000 $ rsw1 rsw2
       pure (i1, i2, i3, i4, i5)
     1010021 === i1
@@ -263,11 +260,10 @@ data Rsr :: Effect where
 makeSem ''Rsr
 
 handleRsr ::
-  Raise rPre r =>
   Member (Stop Int) r =>
   Int ->
   Rsr z x ->
-  Sem (HigherOrder z t Rsr rPre r : r) x
+  Sem (HigherOrder z t Rsr r : r) x
 handleRsr n = \case
   Rsr1 ma -> interpretH (handleRsr (n + 1000000)) (runH' ma)
   Rsr2 -> pure (n + 20)
@@ -276,8 +272,8 @@ handleRsr n = \case
 
 test_scopedR :: UnitTest
 test_scopedR =
-  runTestAuto $ interpretRunStop $ runResumable (runScoped_ (\ n -> interpretResumableH (handleRsr (n + 1)))) do
-    (i1, i2, i3, i4, i5) <- resuming (\ i -> pure (round @Double i, round i, round i, round i, round i)) $ scoped_ 10000 do
+  runTestAuto $ interpretRunStop $ runResumable (runScoped (\ n -> interpretResumableH (handleRsr (n + 1)))) do
+    (i1, i2, i3, i4, i5) <- resuming (\ i -> pure (round @Double i, round i, round i, round i, round i)) $ scoped 10000 do
       i1 <- resuming pure $ rsr1 do
         rsr2
       i2 <- resuming pure $ rsr3 do
@@ -285,7 +281,7 @@ test_scopedR =
       i3 <- rsr2 !! pure
       i4 <- resuming pure $ rsr1 do
         rsr4
-      i5 <- raise $ scoped_ @(Rsr !! Int) @Int 100000 do
+      i5 <- raise $ scoped @(Rsr !! Int) @Int 100000 do
         resumeAs 1000 $ rsr1 rsr2
       pure (i1, i2, i3, i4, i5)
     1010021 === i1
@@ -301,10 +297,9 @@ scopeRsrw n use =
 
 handleRsrw ::
   Member (Stop Int) r =>
-  Raise rPre r =>
   Int ->
   Rsr z x ->
-  Sem (HigherOrder z t Rsr rPre r : r) x
+  Sem (HigherOrder z t Rsr r : r) x
 handleRsrw n = \case
   Rsr1 ma -> interpretH (handleRsr (n + 1000000)) (runH' ma)
   Rsr2 -> pure (n + 20)
@@ -322,8 +317,8 @@ interpretRsrw n =
 
 test_scopedRWith :: UnitTest
 test_scopedRWith =
-  runTestAuto $ interpretRunStop $ runResumable (runScoped_ (\ x -> interpretRsrw x)) do
-    (i1, i2, i3, i4, i5) <- resuming (\ i -> pure (round @Double i, round i, round i, round i, round i)) $ scoped_ 10000 do
+  runTestAuto $ interpretRunStop $ runResumable (runScoped (\ x -> interpretRsrw x)) do
+    (i1, i2, i3, i4, i5) <- resuming (\ i -> pure (round @Double i, round i, round i, round i, round i)) $ scoped 10000 do
       i1 <- resuming pure $ rsr1 do
         rsr2
       i2 <- resuming pure $ rsr3 do
@@ -331,7 +326,7 @@ test_scopedRWith =
       i3 <- rsr2 !! pure
       i4 <- resuming pure $ rsr1 do
         rsr4
-      i5 <- raise $ scoped_ @(Rsr !! Int) @Int 100000 do
+      i5 <- raise $ scoped @(Rsr !! Int) @Int 100000 do
         resumeAs 1000 $ rsr1 rsr2
       pure (i1, i2, i3, i4, i5)
     1010021 === i1

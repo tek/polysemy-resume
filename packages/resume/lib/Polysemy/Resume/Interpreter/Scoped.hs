@@ -10,7 +10,6 @@ import GHC.Err (errorWithoutStackTrace)
 import Polysemy.HigherOrder (exposeH, propagate)
 import Polysemy.Internal (mapMembership)
 import Polysemy.Internal.HigherOrder (controlWithProcessorH)
-import Polysemy.Internal.Scoped (OuterRun (OuterRun))
 import Polysemy.Internal.Sing (KnownList (singList))
 import Polysemy.Internal.Union (injectMembership)
 import Polysemy.Internal.WeaveClass (StT)
@@ -32,16 +31,16 @@ type SRAlloc param resource err extra r =
 type SRHandlerH effect resource err extra r =
   ∀ q1 q2 .
   resource ->
-  EffHandlerH effect (extra ++ Opaque q1 : Stop err : Opaque q2 : r) (extra ++ Opaque q1 : Stop err : Opaque q2 : r)
+  EffHandlerH effect (extra ++ Opaque q1 : Stop err : Opaque q2 : r)
 
 type SRHandler effect resource err extra r =
   ∀ q1 q2 z x . resource -> effect z x -> Sem (extra ++ Opaque q1 : Stop err : Opaque q2 : r) x
 
 runScopedResumable ::
-  ∀ effect param modifier err r .
+  ∀ effect param err r .
   Member RunStop r =>
-  (∀ q1 q2 x . param -> Sem (effect : Opaque q1 : Stop err : Opaque q2 : r) x -> Sem (Opaque q1 : Stop err : Opaque q2 : r) (modifier x)) ->
-  InterpreterFor (Scoped effect param modifier !! err) r
+  (∀ q1 q2 x . param -> Sem (effect : Opaque q1 : Stop err : Opaque q2 : r) x -> Sem (Opaque q1 : Stop err : Opaque q2 : r) x) ->
+  InterpreterFor (Scoped effect param !! err) r
 runScopedResumable scopedInterpreter =
   runResumable \ sem -> runScoped scopedInterpreter sem
 
@@ -49,9 +48,9 @@ runScopedResumable_ ::
   ∀ effect param err r .
   Member RunStop r =>
   (∀ q1 q2 x . param -> Sem (effect : Opaque q1 : Stop err : Opaque q2 : r) x -> Sem (Opaque q1 : Stop err : Opaque q2 : r) x) ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  InterpreterFor (Scoped effect param !! err) r
 runScopedResumable_ scopedInterpreter =
-  runResumable \ sem -> runScoped_ scopedInterpreter sem
+  runResumable \ sem -> runScoped scopedInterpreter sem
 
 -- |Combined higher-order interpreter for 'Scoped' and 'Resumable'.
 -- This allows 'Stop' to be sent from within the resource allocator so that the consumer receives it, terminating the
@@ -60,11 +59,11 @@ interpretScopedResumableH ::
   ∀ effect param resource err r .
   Member RunStop r =>
   SRAlloc param resource err '[] r ->
-  (∀ q1 q2 . resource -> EffHandlerH effect (Opaque q1 : Stop err : Opaque q2 : r) (Opaque q1 : Stop err : Opaque q2 : r)) ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  (∀ q1 q2 . resource -> EffHandlerH effect (Opaque q1 : Stop err : Opaque q2 : r)) ->
+  InterpreterFor (Scoped effect param !! err) r
 interpretScopedResumableH withResource scopedHandler =
   runScopedResumable \ param sem ->
-    Identity <$> withResource param \ r ->
+    withResource param \ r ->
       interpretH (scopedHandler r) sem
 
 -- |Combined interpreter for 'Scoped' and 'Resumable'.
@@ -75,7 +74,7 @@ interpretScopedResumable ::
   Member RunStop r =>
   SRAlloc param resource err '[] r ->
   (∀ z x . resource -> effect z x -> Sem (Stop err : r) x) ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  InterpreterFor (Scoped effect param !! err) r
 interpretScopedResumable withResource scopedHandler =
   interpretScopedResumableH withResource \ r e -> subsume_ (scopedHandler r e)
 
@@ -88,7 +87,7 @@ interpretScopedResumable_ ::
   Member RunStop r =>
   (∀ q1 q2 . param -> Sem (Opaque q1 : Stop err : Opaque q2 : r) resource) ->
   (∀ z x . resource -> effect z x -> Sem (Stop err : r) x) ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  InterpreterFor (Scoped effect param !! err) r
 interpretScopedResumable_ resource =
   interpretScopedResumable \ p use -> use =<< resource p
 
@@ -102,10 +101,10 @@ interpretScopedResumableWithH ::
   Member RunStop r =>
   SRAlloc param resource err extra r ->
   SRHandlerH effect resource err extra r ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  InterpreterFor (Scoped effect param !! err) r
 interpretScopedResumableWithH withResource scopedHandler =
   runScopedResumable \ param (sem :: Sem (effect : Opaque q1 : Stop err : Opaque q2 : r) x) ->
-    Identity <$> withResource param \ resource ->
+    withResource param \ resource ->
       interpretH (scopedHandler @q1 @q2 resource) $
       mapMembership (injectMembership (singList @'[effect]) (singList @extra)) $
       sem
@@ -120,10 +119,10 @@ interpretScopedResumableWith ::
   Member RunStop r =>
   SRAlloc param resource err extra r ->
   SRHandler effect resource err extra r ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  InterpreterFor (Scoped effect param !! err) r
 interpretScopedResumableWith withResource scopedHandler =
   runScopedResumable \ param (sem :: Sem (effect : Opaque q1 : Stop err : Opaque q2 : r) x) ->
-    Identity <$> withResource param \ resource ->
+    withResource param \ resource ->
       sem
       & mapMembership (injectMembership (singList @'[effect]) (singList @extra))
       & interpretH \ e -> raise (scopedHandler @q1 @q2 resource e)
@@ -139,10 +138,10 @@ interpretScopedResumableWith_ ::
   Member RunStop r =>
   (∀ q1 q2 x . param -> Sem (extra ++ Opaque q1 : Stop err : Opaque q2 : r) x -> Sem (Opaque q1 : Stop err : Opaque q2 : r) x) ->
   (∀ q1 q2 z x . effect z x -> Sem (extra ++ Opaque q1 : Stop err : Opaque q2 : r) x) ->
-  InterpreterFor (Scoped_ effect param !! err) r
+  InterpreterFor (Scoped effect param !! err) r
 interpretScopedResumableWith_ extra scopedHandler =
   runScopedResumable \ param (sem :: Sem (effect : Opaque q1 : Stop err : Opaque q2 : r) x) ->
-    fmap Identity $ extra @q1 @q2 param $
+    extra @q1 @q2 param $
       sem
       & mapMembership (injectMembership (singList @'[effect]) (singList @extra))
       & interpretH \ e -> raise (scopedHandler @q1 @q2 e)
@@ -154,10 +153,10 @@ interpretResumableScopedH ::
   ∀ param resource effect err r .
   Member RunStop r =>
   (∀ q x . param -> (resource -> Sem (Opaque q : r) x) -> Sem (Opaque q : r) x) ->
-  (∀ q1 q2 . resource -> EffHandlerH effect (Opaque q1 : Opaque q2 : r) (Stop err : Opaque q1 : Opaque q2 : r)) ->
-  InterpreterFor (Scoped_ (effect !! err) param) r
+  (∀ q1 q2 . resource -> EffHandlerH effect (Stop err : Opaque q1 : Opaque q2 : r)) ->
+  InterpreterFor (Scoped (effect !! err) param) r
 interpretResumableScopedH withResource scopedHandler =
-  runScoped_ \ param sem ->
+  runScoped \ param sem ->
     withResource param \ r ->
       interpretResumableH (scopedHandler r) sem
 
@@ -169,7 +168,7 @@ interpretResumableScoped ::
   Member RunStop r =>
   (∀ q x . param -> (resource -> Sem (Opaque q : r) x) -> Sem (Opaque q : r) x) ->
   (∀ q z x . resource -> effect z x -> Sem (Stop err : Opaque q : r) x) ->
-  InterpreterFor (Scoped_ (effect !! err) param) r
+  InterpreterFor (Scoped (effect !! err) param) r
 interpretResumableScoped withResource scopedHandler =
   interpretResumableScopedH withResource \ r e -> raise (raiseUnder2 (scopedHandler r e))
 
@@ -182,6 +181,6 @@ interpretResumableScoped_ ::
   Member RunStop r =>
   (param -> Sem r resource) ->
   (∀ q z x . resource -> effect z x -> Sem (Stop err : Opaque q : r) x) ->
-  InterpreterFor (Scoped_ (effect !! err) param) r
+  InterpreterFor (Scoped (effect !! err) param) r
 interpretResumableScoped_ resource =
   interpretResumableScoped \ p use -> use =<< raise (resource p)

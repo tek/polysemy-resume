@@ -12,10 +12,13 @@ import Polysemy.Error (Error (Throw))
 import Polysemy.Final (controlFinal, interpretFinal)
 import Polysemy.Internal (Sem (Sem))
 import Polysemy.Internal.Union (Weaving (Weaving), decomp, liftHandlerWithNat)
+import Polysemy.Membership (ElemOf (Here))
+import Polysemy.Meta (sendMetaUsing)
+import Polysemy.Newtype (subsumeCoerce)
 import qualified Text.Show
 import Unsafe.Coerce (unsafeCoerce)
 
-import Polysemy.Resume.Effect.RunStop (RunStop (RunStop))
+import Polysemy.Resume.Effect.RunStop (RunStop (RunStop), RunStopMeta (RunStopMeta))
 import Polysemy.Resume.Effect.Stop (Stop (Stop), stop)
 
 -- |Equivalent of 'runError'.
@@ -239,9 +242,10 @@ stopTryAny f =
 {-# inline stopTryAny #-}
 
 runStop ::
-  ∀ err r a .
   Member RunStop r =>
-  Sem (Stop err : r) a ->
-  Sem r (Either err a)
-runStop =
-  transform RunStop . scoped1 (Const ()) . raiseUnder
+  Sem (Stop e : r) a ->
+  Sem r (Either e a)
+runStop m =
+  RunStopMeta (raiseUnder m)
+  & sendMetaUsing Here
+  & subsumeCoerce @RunStop

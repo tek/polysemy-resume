@@ -3,6 +3,8 @@
 -- |Description: The 'Stop' effect.
 module Polysemy.Resume.Effect.Stop where
 
+import Polysemy.Internal.Utils ((.#))
+
 -- |An effect similar to 'Polysemy.Error.Error' without the ability to be caught.
 -- Used to signal that an error is supposed to be expected by dependent programs.
 --
@@ -15,8 +17,9 @@ module Polysemy.Resume.Effect.Stop where
 --     StopBang -> stop (Bang 13)
 --     StopBoom -> stop (Boom "ouch")
 -- @
-data Stop e :: Effect where
+newtype Stop e :: Effect where
   -- |Abort a computation with an error value.
   Stop :: e -> Stop e m a
 
-makeSem ''Stop
+stop :: Member (Stop e) r => e -> Sem r void
+stop = send .# Stop

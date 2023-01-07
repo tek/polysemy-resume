@@ -1,7 +1,11 @@
 -- | Resumption combinators, transforming an effect into 'Resumable' and 'Stop'.
 module Polysemy.Resume.Resume where
 
-import Polysemy.Resume.Effect.Resumable (Resumable (Resumable))
+import Polysemy.Membership (ElemOf (Here))
+import Polysemy.Meta (sendMetaUsing)
+import Polysemy.Newtype (subsumeCoerce)
+
+import Polysemy.Resume.Effect.Resumable (Resumable (Resumable), ResumableMeta (ResumableMeta))
 import Polysemy.Resume.Effect.RunStop (RunStop)
 import Polysemy.Resume.Effect.Stop (Stop, stop)
 import Polysemy.Resume.Interpreter.Stop (runStop)
@@ -34,7 +38,10 @@ resume ::
   (err -> Sem r a) ->
   Sem r a
 resume ma handler =
-  leftA handler =<< transform @(Scoped eff () (Either err)) Resumable (scoped () (raiseUnder ma))
+  ResumableMeta (raiseUnder ma)
+  & sendMetaUsing Here
+  & subsumeCoerce @(Resumable err eff)
+  >>= leftA handler
 {-# inline resume #-}
 
 -- | Operator version of 'resume'.

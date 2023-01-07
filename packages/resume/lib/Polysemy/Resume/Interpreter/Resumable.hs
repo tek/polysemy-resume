@@ -7,27 +7,33 @@ module Polysemy.Resume.Interpreter.Resumable where
 import Polysemy.Internal.CustomErrors (FirstOrder)
 import Polysemy.Internal.Union (ElemOf, membership)
 import Polysemy.Membership (exposeUsing)
-import Polysemy.Opaque (Opaque)
+import Polysemy.Meta (interpretMeta, runMeta)
+import Polysemy.Newtype (coerceEff)
+import Polysemy.Opaque (Opaque, collectOpaqueBundleAt, runOpaqueBundleAt)
 
-import Polysemy.Resume.Effect.Resumable (Resumable (..))
+import Polysemy.Resume.Effect.Resumable (Resumable (..), ResumableMeta (ResumableMeta))
 import Polysemy.Resume.Effect.RunStop (RunStop)
 import Polysemy.Resume.Effect.Stop (Stop)
 import Polysemy.Resume.Interpreter.Stop (runStop)
 
-unwrapResumable ::
-  (Sem (Scoped eff () (Either err) : r) a -> Sem r b) ->
-  Sem (Resumable err eff : r) a -> Sem r b
-unwrapResumable int =
-  int . rewrite unResumable
-{-# inline unwrapResumable #-}
+type ResumableInterpreter err eff r =
+  ∀ q x . Sem (eff : Opaque q : r) x -> Sem (Opaque q : r) (Either err x)
+
+type ResumableHandler err eff r =
+  ∀ q . EffHandlerH eff (Stop err : Opaque q : r)
 
 runResumableWith ::
   ∀ err eff r .
-  Member RunStop r =>
-  (∀ q x . Sem (eff : Opaque q : r) x -> Sem (Stop err : Opaque q : r) x) ->
+  ResumableInterpreter err eff r ->
   InterpreterFor (Resumable err eff) r
 runResumableWith int =
-  unwrapResumable (runScoped (const (runStop . int)))
+  coerceEff >>>
+  interpretMeta @(ResumableMeta eff err) \case
+    ResumableMeta m ->
+      runMeta m
+      & collectOpaqueBundleAt @1 @'[_, _]
+      & int
+      & runOpaqueBundleAt @0
 
 -- | Create an interpreter for @'Resumable' err eff@ from an interpreter for @eff@.
 --
@@ -38,14 +44,7 @@ runResumable ::
   (∀ q . InterpreterFor eff (Stop err : Opaque q : r)) ->
   InterpreterFor (Resumable err eff) r
 runResumable int =
-  runResumableWith (int . raiseUnder)
-
-type ResumableHandler err eff r =
-  ∀ q . EffHandlerH eff (Opaque q : r) (Stop err : Opaque q : r)
-  -- ∀ t q z x .
-  -- Traversable t =>
-  -- eff z x ->
-  -- Sem (HigherOrder z t eff (Opaque q : r) (Stop err : Opaque q : r) : Stop err : Opaque q : r) x
+  runResumableWith (runStop . int . raiseUnder)
 
 -- | Like 'interpretResumable', but for higher-order effects.
 interpretResumableH ::
@@ -55,7 +54,7 @@ interpretResumableH ::
   ResumableHandler err eff r ->
   InterpreterFor (Resumable err eff) r
 interpretResumableH handler =
-  runResumableWith (reinterpretH \ eff -> handler eff)
+  runResumableWith (runStop . reinterpretH \ eff -> handler eff)
 
 -- | Create an interpreter for @'Resumable' err eff@ by supplying a handler function for @eff@, analogous to
 -- 'Polysemy.interpret'.
@@ -77,11 +76,10 @@ interpretResumable ::
   ∀ err eff r .
   Member RunStop r =>
   FirstOrder eff "interpretResumable" =>
-  (∀ z x . eff z x -> Sem (Stop err : r) x) ->
+  (∀ z q x . eff z x -> Sem (Stop err : Opaque q : r) x) ->
   InterpreterFor (Resumable err eff) r
 interpretResumable handler =
-  unwrapResumable $
-  runScoped \ () -> runStop . reinterpretH \ eff -> raise (raiseUnder (handler eff))
+  runResumableWith (runStop . reinterpretH (raise . handler))
 
 -- | Interceptor variant of 'interpretResumableH'.
 interceptResumableUsingH ::
@@ -137,8 +135,7 @@ interpretResumablePartialH ::
   ResumableHandler err eff r ->
   InterpreterFor (Resumable handled eff) r
 interpretResumablePartialH canHandle handler =
-  unwrapResumable $
-  runScoped \ () ->
+  runResumableWith $
     let
       check = \case
         Right handled -> pure (Left handled)
@@ -212,5 +209,4 @@ raiseResumable ::
   Sem (Resumable err eff : r) a ->
   Sem r a
 raiseResumable interpreter =
-  unwrapResumable $
-  runScoped \ () -> fmap Right . interpreter
+  runResumableWith (fmap Right . interpreter)
