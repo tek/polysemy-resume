@@ -426,11 +426,11 @@
         "retrie-1100": "retrie-1100"
       },
       "locked": {
-        "lastModified": 1673012202,
-        "narHash": "sha256-5ETZtEEyejh3O2hgCyTDRHHZpenkC23INL/n2J3FZTI=",
+        "lastModified": 1673298488,
+        "narHash": "sha256-d42bgaaO82B0UR8CTgP131pUSeVHsTH3j3byGe2PEiw=",
         "owner": "haskell",
         "repo": "haskell-language-server",
-        "rev": "05051866b221ff2d514cf78b9852e442403e4a33",
+        "rev": "ddc67b2d4d719623b657aa54db20bf58c58a5d4a",
         "type": "github"
       },
       "original": {
@@ -469,10 +469,10 @@
         "polysemy": "polysemy"
       },
       "locked": {
-        "lastModified": 1673096370,
-        "narHash": "sha256-xn8CYT+O+e5CQLtdWCTqbEcz9IFggObYjG4VnUZJ++w=",
+        "lastModified": 1673707650,
+        "narHash": "sha256-YbF+ghkCoca1Sm+cl5uzDr4FXUyeevsFshi+J12k8+4=",
         "ref": "ps2",
-        "rev": "da550dd093895a0a44e9550cad8ae8fe80c1c3b2",
+        "rev": "d0b058c97888140b47f65d5f96d1181d9ff7f10e",
         "revCount": 41,
         "type": "git",
         "url": "https://git.tryp.io/tek/incipit-core"
@@ -748,8 +748,8 @@
         "unstable": "unstable"
       },
       "locked": {
-        "lastModified": 1673096344,
-        "narHash": "sha256-8qH1nkFWzTW54PQqep/aKZDpcYur4e76fjMuuc5WFPw=",
+        "lastModified": 1673707498,
+        "narHash": "sha256-EbhbCloS48D7+zJtC9ZAceQIwOlvzwTVydyz2dSTBT0=",
         "path": "/home/tek/code/tek/haskell/polysemy",
         "type": "path"
       },
@@ -764,10 +764,10 @@
         "incipit-core": "incipit-core"
       },
       "locked": {
-        "lastModified": 1673096388,
-        "narHash": "sha256-h9xGWy1uuTuyaWcZekDfdQevpsXeSjy5Hi4d1oO00/k=",
+        "lastModified": 1673707677,
+        "narHash": "sha256-xNLsILHm2C9TjsEsXPZunpgvx70kp9RiCRs81S7qcv0=",
         "ref": "ps2",
-        "rev": "a2234d6c4e3ae3320c74a63ffa43252811b0176b",
+        "rev": "6feaaa2811e681e1c9068f2a719a286713b16212",
         "revCount": 99,
         "type": "git",
         "url": "https://git.tryp.io/tek/polysemy-test"

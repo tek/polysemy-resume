@@ -7,14 +7,15 @@ module Polysemy.Resume.Interpreter.Resumable where
 import Polysemy.Internal.CustomErrors (FirstOrder)
 import Polysemy.Internal.Union (ElemOf, membership)
 import Polysemy.Membership (exposeUsing)
-import Polysemy.Meta (interpretMeta, runMeta)
+import Polysemy.Meta (interpretMeta, runExposeMeta)
 import Polysemy.Newtype (coerceEff)
-import Polysemy.Opaque (Opaque, collectOpaqueBundleAt, runOpaqueBundleAt)
+import Polysemy.Opaque (Opaque, fromOpaque, toOpaqueAt)
 
 import Polysemy.Resume.Effect.Resumable (Resumable (..), ResumableMeta (ResumableMeta))
 import Polysemy.Resume.Effect.RunStop (RunStop)
 import Polysemy.Resume.Effect.Stop (Stop)
 import Polysemy.Resume.Interpreter.Stop (runStop)
+import Polysemy.HigherOrder (restoreH)
 
 type ResumableInterpreter err eff r =
   ∀ q x . Sem (eff : Opaque q : r) x -> Sem (Opaque q : r) (Either err x)
@@ -30,10 +31,14 @@ runResumableWith int =
   coerceEff >>>
   interpretMeta @(ResumableMeta eff err) \case
     ResumableMeta m ->
-      runMeta m
-      & collectOpaqueBundleAt @1 @'[_, _]
-      & int
-      & runOpaqueBundleAt @0
+      runExposeMeta
+        (toOpaqueAt @'[_]
+         >>> int
+         >>> coerceEff
+         >>> fromOpaque
+         ) m >>= \case
+        Left e -> pure (Left e)
+        Right ta -> Right <$> restoreH ta
 
 -- | Create an interpreter for @'Resumable' err eff@ from an interpreter for @eff@.
 --

@@ -9,8 +9,6 @@
   let
 
     all = { hackage, source, ... }: {
-      # polysemy = source.root polysemy;
-      # polysemy-plugin = source.sub polysemy "polysemy-plugin";
       # incipit-base = hackage "0.4.0.0" "0g04mw1si70g5kkgz9gnk460d4pvm65i30hd9abrg6g0ryizixqf";
       # incipit-core = hackage "0.4.0.0" "168m94c1480y8lhin1sbrwzr14dq13ixkgkcl7ikq78vcq267521";
       # polysemy = hackage "1.9.0.0" "1af07cppnjpv5v56wanya1mhkvbfnyynf5447mnkcf4zc4k23pyk";

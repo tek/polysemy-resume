@@ -11,6 +11,7 @@ import Polysemy.Resume.Effect.Stop (Stop, stop)
 import Polysemy.Resume.Interpreter.Resumable (interpretResumableH)
 import Polysemy.Resume.Interpreter.RunStop (interpretRunStop)
 import Polysemy.Resume.Resume (resume)
+import qualified Polysemy.HigherOrder.Flexible as Flex
 
 data Eff :: Effect where
   Nest :: m a -> Eff m a
@@ -34,7 +35,7 @@ interpretEff ::
 interpretEff =
   interpretResumableH \case
     Nest ma -> do
-      interpretH handleEffNested (runH' ma)
+      interpretH handleEffNested (Flex.runH' ma)
     Result ->
       pure 1
 

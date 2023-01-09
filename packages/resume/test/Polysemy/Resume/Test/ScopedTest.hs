@@ -18,6 +18,7 @@ import Polysemy.Resume.Interpreter.Scoped (
   interpretScopedResumableWithH,
   )
 import Polysemy.Resume.Resume (resumeAs, resuming, (!!))
+import qualified Polysemy.HigherOrder.Flexible as Flex
 
 newtype Par =
   Par { unPar :: Int }
@@ -36,7 +37,7 @@ data F :: Effect where
 makeSem ''F
 
 type Handler e r =
-  ∀ z x t . e z x -> Sem (HigherOrder z t e r : r) x
+  ∀ z x t . e z x -> Sem (HigherOrder z t e r r : r) x
 
 handleE ::
   Member (Embed IO) r =>
@@ -93,7 +94,7 @@ handleH1 n = \case
   H1c ->
     stop 100000
   H1d ma ->
-    interpretH (handleH1 (n + 1)) (runH' ma)
+    interpretH (handleH1 (n + 1)) (Flex.runH' ma)
 
 test_scopedResumable :: UnitTest
 test_scopedResumable =
@@ -166,9 +167,9 @@ handleRs ::
   Member (Stop Int) r =>
   Int ->
   Rs z x ->
-  Sem (HigherOrder z t Rs r : r) x
+  Sem (HigherOrder z t Rs r r : r) x
 handleRs n = \case
-  Rs1 ma -> interpretH (handleRs (n + 1000000)) (runH' ma)
+  Rs1 ma -> runH' (interpretH (handleRs (n + 1000000))) ma
   Rs2 -> pure (n + 20)
   Rs3 _ -> stop 200
   Rs4 -> stop 2000
@@ -215,9 +216,9 @@ handleRsw ::
   Members [RswExtra, Stop Int] r =>
   Int ->
   Rsw z x ->
-  Sem (HigherOrder z t Rsw r : r) x
+  Sem (HigherOrder z t Rsw r r : r) x
 handleRsw n = \case
-  Rsw1 ma -> interpretH (handleRsw (n + 1000000)) (runH' ma)
+  Rsw1 ma -> interpretH (handleRsw (n + 1000000)) (Flex.runH' ma)
   Rsw2 -> pure . (n +) =<< rswExtra
   Rsw3 _ -> stop 200
   Rsw4 -> stop 2000
@@ -263,9 +264,9 @@ handleRsr ::
   Member (Stop Int) r =>
   Int ->
   Rsr z x ->
-  Sem (HigherOrder z t Rsr r : r) x
+  Sem (HigherOrder z t Rsr r r : r) x
 handleRsr n = \case
-  Rsr1 ma -> interpretH (handleRsr (n + 1000000)) (runH' ma)
+  Rsr1 ma -> interpretH (handleRsr (n + 1000000)) (Flex.runH' ma)
   Rsr2 -> pure (n + 20)
   Rsr3 _ -> stop 200
   Rsr4 -> stop 2000
@@ -299,9 +300,9 @@ handleRsrw ::
   Member (Stop Int) r =>
   Int ->
   Rsr z x ->
-  Sem (HigherOrder z t Rsr r : r) x
+  Sem (HigherOrder z t Rsr r r : r) x
 handleRsrw n = \case
-  Rsr1 ma -> interpretH (handleRsr (n + 1000000)) (runH' ma)
+  Rsr1 ma -> interpretH (handleRsr (n + 1000000)) (Flex.runH' ma)
   Rsr2 -> pure (n + 20)
   Rsr3 _ -> stop 200
   Rsr4 -> stop 2000

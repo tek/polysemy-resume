@@ -3,9 +3,10 @@
 -- |Description: Interpreters for 'RunStop'.
 module Polysemy.Resume.Interpreter.RunStop where
 
-import Polysemy.Meta (interpretMeta, runMeta)
+import Polysemy.HigherOrder (restoreH)
+import Polysemy.Meta (interpretMeta, runExposeMeta)
 import Polysemy.Newtype (coerceEff)
-import Polysemy.Opaque (Opaque, collectOpaqueBundleAt, runOpaqueBundleAt)
+import Polysemy.Opaque (Opaque, fromOpaque, toOpaqueAt)
 
 import Polysemy.Resume.Effect.RunStop (RunStop (RunStop), RunStopMeta (RunStopMeta))
 import Polysemy.Resume.Effect.Stop (Stop)
@@ -18,10 +19,9 @@ customRunStop interp =
   coerceEff
   >>> interpretMeta @RunStopMeta \case
     RunStopMeta m ->
-      runMeta m
-      & collectOpaqueBundleAt @1 @'[_, _]
-      & interp
-      & runOpaqueBundleAt @0
+      runExposeMeta (fromOpaque . interp . toOpaqueAt @'[_]) m >>= \case
+        Left e -> pure (Left e)
+        Right ta -> Right <$> restoreH ta
 
 interpretRunStop :: InterpreterFor RunStop r
 interpretRunStop =

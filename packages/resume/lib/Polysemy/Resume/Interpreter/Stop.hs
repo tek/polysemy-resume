@@ -5,13 +5,13 @@ module Polysemy.Resume.Interpreter.Stop where
 
 import qualified Control.Exception as Base
 import Control.Exception (throwIO)
-import Control.Monad.Trans.Except (ExceptT (ExceptT), runExceptT, throwE)
 import Data.Unique (Unique, hashUnique, newUnique)
 import GHC.Exts (Any)
 import Polysemy.Error (Error (Throw))
 import Polysemy.Final (controlFinal, interpretFinal)
-import Polysemy.Internal (Sem (Sem))
-import Polysemy.Internal.Union (Weaving (Weaving), decomp, liftHandlerWithNat)
+import Polysemy.Internal (Sem (Sem), runSem)
+import Polysemy.Internal.Core (Weave (EmbedW, GetStateW, LiftWithW, RestoreW), fromFOEff)
+import Polysemy.Internal.Union (Weaving (Sent, Weaved), decomp, weave)
 import Polysemy.Membership (ElemOf (Here))
 import Polysemy.Meta (sendMetaUsing)
 import Polysemy.Newtype (subsumeCoerce)
@@ -21,18 +21,55 @@ import Unsafe.Coerce (unsafeCoerce)
 import Polysemy.Resume.Effect.RunStop (RunStop (RunStop), RunStopMeta (RunStopMeta))
 import Polysemy.Resume.Effect.Stop (Stop (Stop), stop)
 
+runWeaveError :: Sem (Weave (Either e) r ': r) a -> Sem r (Either e a)
+runWeaveError sem0 = Sem $ \k c0 ->
+  runSem sem0
+    (\u c -> case decomp u of
+        Left g -> (`k` either (c0 . Left) c) $
+          weave
+            (Right ())
+            (either (pure . Left) runWeaveError)
+            runWeaveError
+            g
+        Right wav -> fromFOEff wav $ \ex -> \case
+          RestoreW t -> either (c0 . Left) (c . ex) t
+          GetStateW main -> c $ ex $ main Right
+          LiftWithW main -> c $ ex $ main runWeaveError
+          EmbedW m -> runSem m k (\a -> c (ex a))
+    )
+    (c0 . Right)
+
 -- |Equivalent of 'runError'.
 runStopPure ::
   Sem (Stop err : r) a ->
   Sem r (Either err a)
-runStopPure (Sem m) =
-  Sem \ k ->
-    runExceptT $ m \ u ->
-      case decomp u of
-        Left x ->
-          liftHandlerWithNat (ExceptT . runStopPure) k x
-        Right (Weaving (Stop err) _ _ _) ->
-          throwE err
+-- runStopPure (Sem m) =
+  -- Sem \ k ->
+  --   runExceptT $ m \ u ->
+  --     case decomp u of
+  --       Left x ->
+  --         liftHandlerWithNat (ExceptT . runStopPure) k x
+  --       Right (Weaving (Stop err) _ _ _) ->
+  --         throwE err
+runStopPure sem0 = Sem $ \k c0 ->
+  runSem sem0
+    (\u c -> case decomp u of
+        Left g -> (`k` either (c0 . Left) c) $
+          weave
+            (Right ())
+            (either (pure . Left) go)
+            runWeaveError
+            g
+        Right (Sent e _) -> case e of
+          Stop exc -> c0 (Left exc)
+        Right (Weaved e _ _ _ _ _) -> case e of
+          Stop exc -> c0 (Left exc)
+    )
+    (c0 . Right)
+  where
+    go :: Sem (Stop e : r) a -> Sem r (Either e a)
+    go = runStopPure
+    {-# NOINLINE go #-}
 
 -- | Internal type used to tag exceptions thrown by 'Stop' interpreters.
 data StopExc = StopExc !Unique Any
