@@ -241,7 +241,7 @@ resumableError interpreter =
 -- @
 -- newtype Blip =
 --   Blip { unBlip :: Int }
---   deriving (Eq, Show)
+--   deriving stock (Eq, Show)
 --
 -- bangOnly :: Boom -> Either Text Blip
 -- bangOnly = \\case

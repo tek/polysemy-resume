@@ -172,7 +172,7 @@ import Polysemy.Resume.Interpreter.Stop (
 --   Boom { unBoom :: Text }
 --   |
 --   Bang { unBang :: Int }
---   deriving (Eq, Show)
+--   deriving stock (Eq, Show)
 --
 -- interpretStopper ::
 --   Member (Error Boom) r =>

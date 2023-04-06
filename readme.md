@@ -26,7 +26,7 @@ data Boom =
   Boom { unBoom :: Text }
   |
   Bang { unBang :: Int }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 ```
 
 we implement an interpreter for `Stopper` that may throw the error `Boom`, but
@@ -147,7 +147,7 @@ the interpretation site:
 ```haskell
 newtype Blip =
   Blip { unBlip :: Int }
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 bangOnly :: Boom -> Maybe Blip
 bangOnly = \case
