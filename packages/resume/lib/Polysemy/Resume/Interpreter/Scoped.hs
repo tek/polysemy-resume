@@ -13,7 +13,6 @@ import Polysemy.Internal.Sing (KnownList (singList))
 import Polysemy.Internal.Tactics (liftT)
 import Polysemy.Internal.Union (Weaving (Weaving), injWeaving, injectMembership, weave)
 import Polysemy.Opaque (Opaque (Opaque))
-import Polysemy.Scoped (runScopedNew)
 
 import Polysemy.Resume.Effect.Resumable (Resumable (Resumable), type (!!))
 import Polysemy.Resume.Effect.Stop (Stop)
