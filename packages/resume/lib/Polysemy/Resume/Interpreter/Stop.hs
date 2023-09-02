@@ -69,7 +69,7 @@ stopToIOFinal sem =
   withStrategicToFinal @IO do
     m' <- runS (runStopAsExcFinal sem)
     s <- getInitialStateS
-    pure $ either ((<$ s) . Left . unStopExc) (fmap Right) <$> Base.try m'
+    pure $ either ((<$ s) . Left . \ (StopExc e) -> e) (fmap Right) <$> Base.try m'
 {-# inline stopToIOFinal #-}
 
 -- |Stop if the argument is 'Left', transforming the error with @f@.
