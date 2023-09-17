@@ -1,5 +1,7 @@
 # Unreleased
 
+* Export `stopToErrorIO`.
+
 # 0.7.0.0
 
 * Rewrite `Scoped` interpreters in Polysemy 1.9 style.

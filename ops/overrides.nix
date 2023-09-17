@@ -8,8 +8,8 @@ ghc94 = {
 ghc96 = {
   polysemy = {
   meta = {
-    sha256 = "0hh99vxhf1cyfpzyj6j9s5l2yz7gdp1m10bk98fh2mjqxm207s4k";
-    ver = "1.9.1.1";
+    sha256 = "01vkiqxcjvvihgg8dvws76sfg0d98z8xyvpnj3g3nz02i078xf8j";
+    ver = "1.9.1.2";
   };
   drv = { mkDerivation, async, base, Cabal, cabal-doctest, containers
 , doctest, first-class-families, hspec, hspec-discover
@@ -18,8 +18,8 @@ ghc96 = {
 }:
 mkDerivation {
   pname = "polysemy";
-  version = "1.9.1.1";
-  src = /nix/store/cw511s4qyq4vkgxssrc448vh7i1qy6l8-source;
+  version = "1.9.1.2";
+  src = /nix/store/anfwczj25hh5zcm9y70vb1221wayi1v0-source;
   setupHaskellDepends = [ base Cabal cabal-doctest ];
   libraryHaskellDepends = [
     async base containers first-class-families mtl stm syb
