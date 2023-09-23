@@ -135,7 +135,7 @@ test-suite polysemy-resume-test
     , polysemy ==1.9.*
     , polysemy-plugin >=0.4.3 && <0.5
     , polysemy-resume
-    , polysemy-test >=0.6 && <0.9
+    , polysemy-test >=0.6 && <0.10
     , stm
     , tasty ==1.4.*
   mixins:

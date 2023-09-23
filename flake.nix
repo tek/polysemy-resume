@@ -10,7 +10,6 @@
     ghcVersions = ["ghc92" "ghc94" "ghc96"];
     hackage.versionFile = "ops/version.nix";
     deps = [polysemy-test];
-    compiler = "ghc94";
     gen-overrides.enable = true;
 
     cabal = {
@@ -51,7 +50,7 @@
         dependencies = [
           "polysemy ^>= 1.9"
           "polysemy-plugin ^>= 0.4.3"
-          "polysemy-test >= 0.6 && < 0.9"
+          "polysemy-test >= 0.6 && < 0.10"
           "stm"
           "tasty ^>= 1.4"
         ];
