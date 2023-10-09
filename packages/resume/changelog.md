@@ -1,3 +1,7 @@
+# Unreleased
+
+* Add `resumeMaybe`.
+
 # 0.8.0.0
 
 * Export `stopToErrorIO`.

@@ -216,6 +216,15 @@ resumeEither ::
 resumeEither ma =
   resuming (pure . Left) (Right <$> ma)
 
+-- | Variant of 'resume' that immediately produces an 'Maybe'.
+resumeMaybe ::
+  ∀ err eff r a .
+  Member (Resumable err eff) r =>
+  Sem (eff : r) a ->
+  Sem r (Maybe a)
+resumeMaybe ma =
+  resuming @err (const (pure Nothing)) (Just <$> ma)
+
 -- | Variant of 'resume' that takes a branch for error and success.
 -- This allows the success branch to contain other resumptions.
 --
