@@ -1,16 +1,22 @@
 {
   description = "Polysemy error tracking";
 
-  inputs = {
-    hix.url = "git+https://git.tryp.io/tek/hix";
-    polysemy-test.url = "git+https://git.tryp.io/tek/polysemy-test";
-  };
+  inputs.hix.url = "git+https://git.tryp.io/tek/hix";
 
-  outputs = {hix, polysemy-test, ...}: hix.lib.pro {
-    ghcVersions = ["ghc92" "ghc94" "ghc96"];
+  outputs = {hix, ...}: hix.lib.pro {
+    ghcVersions = ["ghc92" "ghc94" "ghc96" "ghc98"];
+    compat.versions = ["ghc94" "ghc96"];
     hackage.versionFile = "ops/version.nix";
-    deps = [polysemy-test];
     gen-overrides.enable = true;
+    managed = {
+      enable = true;
+      lower.enable = true;
+      latest.compiler = "ghc98";
+    };
+
+    overrides = {jailbreak, unbreak, ...}: {
+      polysemy-test = jailbreak unbreak;
+    };
 
     cabal = {
       license = "BSD-2-Clause-Patent";

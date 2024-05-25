@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.35.2.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -51,6 +51,7 @@ library
       GADTs
       LambdaCase
       LiberalTypeSynonyms
+      MonadComprehensions
       MultiWayIf
       OverloadedLabels
       OverloadedLists
@@ -108,6 +109,7 @@ test-suite polysemy-resume-test
       GADTs
       LambdaCase
       LiberalTypeSynonyms
+      MonadComprehensions
       MultiWayIf
       OverloadedLabels
       OverloadedLists
