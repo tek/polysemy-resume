@@ -11,10 +11,21 @@
     managed = {
       enable = true;
       lower.enable = true;
+      envs.solverOverrides = {jailbreak, unbreak, ...}: {
+        polysemy-test = jailbreak unbreak;
+      };
       latest.compiler = "ghc98";
     };
 
     overrides = {jailbreak, unbreak, ...}: {
+      polysemy-test = jailbreak unbreak;
+    };
+
+    envs.latest.overrides = {jailbreak, unbreak, ...}: {
+      polysemy-test = jailbreak unbreak;
+    };
+
+    envs.lower.overrides = {jailbreak, unbreak, ...}: {
       polysemy-test = jailbreak unbreak;
     };
 
