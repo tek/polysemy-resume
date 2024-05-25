@@ -12,6 +12,73 @@ ghc98 = {
 hls = {
 };
 latest = {
+  incipit-base = {
+  meta = {
+    sha256 = "1hck35yfy0dcgimgnd90w02zvv7x7k456bljrbx2mwxalnhav9gf";
+    ver = "0.6.0.0";
+  };
+  drv = { mkDerivation, base, bytestring, containers, data-default, lib
+, stm, text
+}:
+mkDerivation {
+  pname = "incipit-base";
+  version = "0.6.0.0";
+  src = /nix/store/bcs2wgdcfmnm1msbd7n8qd27ikwv3rcm-source;
+  libraryHaskellDepends = [
+    base bytestring containers data-default stm text
+  ];
+  homepage = "https://github.com/tek/incipit-core#readme";
+  description = "A Prelude for Polysemy – Base Reexports";
+  license = "BSD-2-Clause-Patent";
+}
+;
+}
+;
+  incipit-core = {
+  meta = {
+    sha256 = "0gmngb4pinkpbsnclrgs6x016ffnls1g4xzz0hdzg2rpyl63d5ph";
+    ver = "0.6.0.0";
+  };
+  drv = { mkDerivation, base, incipit-base, lib, polysemy }:
+mkDerivation {
+  pname = "incipit-core";
+  version = "0.6.0.0";
+  src = /nix/store/r29nfjc427wwr536jccy99r885kbyw02-source;
+  libraryHaskellDepends = [ base incipit-base polysemy ];
+  homepage = "https://github.com/tek/incipit-core#readme";
+  description = "A Prelude for Polysemy";
+  license = "BSD-2-Clause-Patent";
+}
+;
+}
+;
+  polysemy-test = {
+  meta = {
+    sha256 = "0vdsid9xg41szx4g37lmg44h31q7j9ll805rgfrpr1ylf4f3x1hp";
+    ver = "0.10.0.0";
+  };
+  drv = { mkDerivation, base, hedgehog, incipit-core, lib, path, path-io
+, polysemy, tasty, tasty-hedgehog, transformers
+}:
+mkDerivation {
+  pname = "polysemy-test";
+  version = "0.10.0.0";
+  src = /nix/store/byqlnsg2xgbpagl85h2kgmj6bryigjbz-source;
+  enableSeparateDataOutput = true;
+  libraryHaskellDepends = [
+    base hedgehog incipit-core path path-io polysemy tasty
+    tasty-hedgehog transformers
+  ];
+  testHaskellDepends = [
+    base hedgehog incipit-core path polysemy tasty
+  ];
+  homepage = "https://github.com/tek/polysemy-test#readme";
+  description = "Polysemy effects for testing";
+  license = "BSD-2-Clause-Patent";
+}
+;
+}
+;
 };
 lower = {
   aeson = {

@@ -3,40 +3,49 @@
     polysemy-resume = {
       base = {
         lower = "4.16.4.0";
-        upper = null;
+        upper = "4.20";
       };
       incipit-core = {
         lower = "0.4.1.0";
-        upper = null;
+        upper = "0.7";
       };
       polysemy = {
         lower = "1.9.0.0";
-        upper = null;
+        upper = "1.10";
       };
       polysemy-plugin = {
         lower = "0.4.3.0";
-        upper = null;
+        upper = "0.5";
       };
       polysemy-test = {
         lower = "0.6.0.0";
-        upper = null;
+        upper = "0.11";
       };
       stm = {
         lower = "2.5.0.2";
-        upper = null;
+        upper = "2.6";
       };
       tasty = {
         lower = "1.4.0.3";
-        upper = null;
+        upper = "1.5";
       };
       transformers = {
         lower = "0.5.6.2";
-        upper = null;
+        upper = "0.7";
       };
     };
   };
   versions = {
-    latest = {};
+    latest = {
+      base = "4.19.1.0";
+      incipit-core = "0.6.0.0";
+      polysemy = "1.9.1.3";
+      polysemy-plugin = "0.4.5.2";
+      polysemy-test = "0.10.0.0";
+      stm = "2.5.2.1";
+      tasty = "1.4.3";
+      transformers = "0.6.1.0";
+    };
     lower = {
       base = "4.16.4.0";
       incipit-core = "0.4.1.0";
@@ -61,6 +70,20 @@
     };
   };
   overrides = {
+    latest = {
+      incipit-base = {
+        version = "0.6.0.0";
+        hash = "1hck35yfy0dcgimgnd90w02zvv7x7k456bljrbx2mwxalnhav9gf";
+      };
+      incipit-core = {
+        version = "0.6.0.0";
+        hash = "0gmngb4pinkpbsnclrgs6x016ffnls1g4xzz0hdzg2rpyl63d5ph";
+      };
+      polysemy-test = {
+        version = "0.10.0.0";
+        hash = "0vdsid9xg41szx4g37lmg44h31q7j9ll805rgfrpr1ylf4f3x1hp";
+      };
+    };
     lower = {
       aeson = {
         version = "2.1.2.1";
