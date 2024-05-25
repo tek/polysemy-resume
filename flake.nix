@@ -3,7 +3,11 @@
 
   inputs.hix.url = "git+https://git.tryp.io/tek/hix";
 
-  outputs = {hix, ...}: hix.lib.pro {
+  outputs = {hix, ...}: let
+    overrides = {jailbreak, unbreak, ...}: {
+      polysemy-test = jailbreak unbreak;
+    };
+  in hix.lib.pro {
     ghcVersions = ["ghc92" "ghc94" "ghc96" "ghc98"];
     compat.versions = ["ghc94" "ghc96"];
     hackage.versionFile = "ops/version.nix";
@@ -11,12 +15,13 @@
     managed = {
       enable = true;
       lower.enable = true;
+      envs.solverOverrides = overrides;
       latest.compiler = "ghc98";
     };
 
-    overrides = {jailbreak, unbreak, ...}: {
-      polysemy-test = jailbreak unbreak;
-    };
+    inherit overrides;
+    envs.latest.overrides = overrides;
+    envs.lower.overrides = overrides;
 
     cabal = {
       license = "BSD-2-Clause-Patent";
@@ -24,10 +29,7 @@
       author = "Torsten Schmits";
       prelude = {
         enable = true;
-        package = {
-          name = "incipit-core";
-          version = ">= 0.4 && < 0.6";
-        };
+        package = "incipit-core";
         module = "IncipitCore";
       };
       meta = {
@@ -46,7 +48,7 @@
       library = {
         enable = true;
         dependencies = [
-          "polysemy ^>= 1.9"
+          "polysemy"
           "transformers"
         ];
       };
@@ -54,11 +56,11 @@
       test = {
         enable = true;
         dependencies = [
-          "polysemy ^>= 1.9"
-          "polysemy-plugin ^>= 0.4.3"
-          "polysemy-test >= 0.6 && < 0.10"
+          "polysemy"
+          "polysemy-plugin"
+          "polysemy-test"
           "stm"
-          "tasty ^>= 1.4"
+          "tasty"
         ];
       };
 
