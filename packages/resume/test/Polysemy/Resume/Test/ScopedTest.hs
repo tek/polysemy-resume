@@ -3,16 +3,6 @@
 module Polysemy.Resume.Test.ScopedTest where
 
 import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO, readTVarIO, writeTVar)
-import Polysemy.Scoped (
-  Scoped,
-  interpretScoped,
-  interpretScopedH,
-  interpretScopedH',
-  interpretScopedWithH,
-  rescope,
-  scoped,
-  scoped_,
-  )
 import Polysemy.Test (UnitTest, runTestAuto, unitTest, (===))
 import Test.Tasty (TestTree, testGroup)
 
