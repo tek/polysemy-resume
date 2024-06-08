@@ -39,7 +39,7 @@
     latest = {
       base = "4.19.1.0";
       incipit-core = "0.6.0.0";
-      polysemy = "1.9.1.3";
+      polysemy = "1.9.2.0";
       polysemy-plugin = "0.4.5.2";
       polysemy-test = "0.10.0.0";
       stm = "2.5.2.1";
@@ -71,6 +71,10 @@
   };
   overrides = {
     latest = {
+      cabal-doctest = {
+        version = "1.0.9";
+        hash = "0irxfxy1qw7sif4408xdhqycddb4hs3hcf6xfxm65glsnmnmwl2i";
+      };
       incipit-base = {
         version = "0.6.0.0";
         hash = "1hck35yfy0dcgimgnd90w02zvv7x7k456bljrbx2mwxalnhav9gf";
@@ -78,6 +82,14 @@
       incipit-core = {
         version = "0.6.0.0";
         hash = "0gmngb4pinkpbsnclrgs6x016ffnls1g4xzz0hdzg2rpyl63d5ph";
+      };
+      polysemy = {
+        version = "1.9.2.0";
+        hash = "00dq1ffsd9bld5zag4l2qssbmm4yb234cirsn5f19fmx43cdgngl";
+      };
+      polysemy-plugin = {
+        version = "0.4.5.2";
+        hash = "18y0nfx7x7am7cvj9wwhzal9bqv6sj7ckvmkd16blx4c2nqyikp9";
       };
       polysemy-test = {
         version = "0.10.0.0";
