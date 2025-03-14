@@ -1,47 +1,19 @@
 {
 dev = {
 };
-ghc92 = {
-};
-ghc94 = {
-};
-ghc96 = {
-};
-ghc98 = {
-};
-hls = {
-};
-latest = {
-  cabal-doctest = {
-  meta = {
-    sha256 = "0irxfxy1qw7sif4408xdhqycddb4hs3hcf6xfxm65glsnmnmwl2i";
-    ver = "1.0.9";
-  };
-  drv = { mkDerivation, base, Cabal, directory, filepath, lib }:
-mkDerivation {
-  pname = "cabal-doctest";
-  version = "1.0.9";
-  src = /nix/store/zvv4lgrqgjx826ryk6697617pd3xpr7s-source;
-  libraryHaskellDepends = [ base Cabal directory filepath ];
-  homepage = "https://github.com/haskellari/cabal-doctest";
-  description = "A Setup.hs helper for running doctests";
-  license = lib.licenses.bsd3;
-}
-;
-}
-;
+ghc910 = {
   incipit-base = {
   meta = {
-    sha256 = "1hck35yfy0dcgimgnd90w02zvv7x7k456bljrbx2mwxalnhav9gf";
-    ver = "0.6.0.0";
+    sha256 = "0iyyvxpyyybn5ygr875pav6g5hbs00wa9jbr7qslszqpkfpy5x33";
+    ver = "0.6.1.0";
   };
   drv = { mkDerivation, base, bytestring, containers, data-default, lib
 , stm, text
 }:
 mkDerivation {
   pname = "incipit-base";
-  version = "0.6.0.0";
-  src = /nix/store/bcs2wgdcfmnm1msbd7n8qd27ikwv3rcm-source;
+  version = "0.6.1.0";
+  src = /nix/store/2k1isywgqm3pcbzdhwyp97n9250g044k-source;
   libraryHaskellDepends = [
     base bytestring containers data-default stm text
   ];
@@ -54,14 +26,14 @@ mkDerivation {
 ;
   incipit-core = {
   meta = {
-    sha256 = "0gmngb4pinkpbsnclrgs6x016ffnls1g4xzz0hdzg2rpyl63d5ph";
-    ver = "0.6.0.0";
+    sha256 = "144c239nxl8zi2ik3ycic3901gxn8rccij3g609n2zgnn3b6zilj";
+    ver = "0.6.1.0";
   };
   drv = { mkDerivation, base, incipit-base, lib, polysemy }:
 mkDerivation {
   pname = "incipit-core";
-  version = "0.6.0.0";
-  src = /nix/store/r29nfjc427wwr536jccy99r885kbyw02-source;
+  version = "0.6.1.0";
+  src = /nix/store/7bfdjb94bzganyaybhhjmxjcwypnsasp-source;
   libraryHaskellDepends = [ base incipit-base polysemy ];
   homepage = "https://github.com/tek/incipit-core#readme";
   description = "A Prelude for Polysemy";
@@ -70,42 +42,82 @@ mkDerivation {
 ;
 }
 ;
-  polysemy = {
+};
+ghc92 = {
+};
+ghc94 = {
+};
+ghc96 = {
+};
+ghc98 = {
+};
+hix-build-tools = {
+};
+hls = {
+};
+latest = {
+  cabal-doctest = {
   meta = {
-    sha256 = "00dq1ffsd9bld5zag4l2qssbmm4yb234cirsn5f19fmx43cdgngl";
-    ver = "1.9.2.0";
+    sha256 = "152rqpicqpvigjpy4rf1kjlwny1c7ys1r0r123wdjafvv1igflii";
+    ver = "1.0.11";
   };
-  drv = { mkDerivation, async, base, Cabal, cabal-doctest, containers
-, doctest, first-class-families, hspec, hspec-discover
-, inspection-testing, lib, mtl, stm, syb, template-haskell
-, th-abstraction, transformers, type-errors, unagi-chan
+  drv = { mkDerivation, base, Cabal, directory, filepath, lib }:
+mkDerivation {
+  pname = "cabal-doctest";
+  version = "1.0.11";
+  src = /nix/store/jq5gnm6hwmylv7wndgd4v11z6hv30y0g-source;
+  libraryHaskellDepends = [ base Cabal directory filepath ];
+  homepage = "https://github.com/ulidtko/cabal-doctest";
+  description = "A Setup.hs helper for running doctests";
+  license = lib.licenses.bsd3;
+}
+;
+}
+;
+  incipit-base = {
+  meta = {
+    sha256 = "0iyyvxpyyybn5ygr875pav6g5hbs00wa9jbr7qslszqpkfpy5x33";
+    ver = "0.6.1.0";
+  };
+  drv = { mkDerivation, base, bytestring, containers, data-default, lib
+, stm, text
 }:
 mkDerivation {
-  pname = "polysemy";
-  version = "1.9.2.0";
-  src = /nix/store/rrd35xyn2gzkvqid5k43dsqw5z0yb21d-source;
-  setupHaskellDepends = [ base Cabal cabal-doctest ];
+  pname = "incipit-base";
+  version = "0.6.1.0";
+  src = /nix/store/2k1isywgqm3pcbzdhwyp97n9250g044k-source;
   libraryHaskellDepends = [
-    async base containers first-class-families mtl stm syb
-    template-haskell th-abstraction transformers type-errors unagi-chan
+    base bytestring containers data-default stm text
   ];
-  testHaskellDepends = [
-    async base containers doctest first-class-families hspec
-    hspec-discover inspection-testing mtl stm syb template-haskell
-    th-abstraction transformers type-errors unagi-chan
-  ];
-  testToolDepends = [ hspec-discover ];
-  homepage = "https://github.com/polysemy-research/polysemy#readme";
-  description = "Higher-order, low-boilerplate free monads";
-  license = lib.licenses.bsd3;
+  homepage = "https://github.com/tek/incipit-core#readme";
+  description = "A Prelude for Polysemy – Base Reexports";
+  license = "BSD-2-Clause-Patent";
+}
+;
+}
+;
+  incipit-core = {
+  meta = {
+    sha256 = "144c239nxl8zi2ik3ycic3901gxn8rccij3g609n2zgnn3b6zilj";
+    ver = "0.6.1.0";
+  };
+  drv = { mkDerivation, base, incipit-base, lib, polysemy }:
+mkDerivation {
+  pname = "incipit-core";
+  version = "0.6.1.0";
+  src = /nix/store/7bfdjb94bzganyaybhhjmxjcwypnsasp-source;
+  libraryHaskellDepends = [ base incipit-base polysemy ];
+  homepage = "https://github.com/tek/incipit-core#readme";
+  description = "A Prelude for Polysemy";
+  license = "BSD-2-Clause-Patent";
 }
 ;
 }
 ;
   polysemy-plugin = {
   meta = {
-    sha256 = "18y0nfx7x7am7cvj9wwhzal9bqv6sj7ckvmkd16blx4c2nqyikp9";
-    ver = "0.4.5.2";
+    sha256 = "1c2agk21jj7fwdj6xkagq0prvxknp3zr6q1f480wizssibcvm7y6";
+    ver = "0.4.5.3";
   };
   drv = { mkDerivation, base, Cabal, cabal-doctest, containers, doctest
 , ghc, ghc-tcplugins-extra, hspec, hspec-discover
@@ -114,8 +126,8 @@ mkDerivation {
 }:
 mkDerivation {
   pname = "polysemy-plugin";
-  version = "0.4.5.2";
-  src = /nix/store/l68cq0g74sq0ws1plbgva2ry1psk5s21-source;
+  version = "0.4.5.3";
+  src = /nix/store/vhdv7p7lqiarmgai5l0n44yqgczljkb5-source;
   setupHaskellDepends = [ base Cabal cabal-doctest ];
   libraryHaskellDepends = [
     base containers ghc ghc-tcplugins-extra polysemy syb transformers
@@ -135,16 +147,16 @@ mkDerivation {
 ;
   polysemy-test = {
   meta = {
-    sha256 = "0vdsid9xg41szx4g37lmg44h31q7j9ll805rgfrpr1ylf4f3x1hp";
-    ver = "0.10.0.0";
+    sha256 = "1sp9iag1brknmdy0qvmgnmynwc4gbg1jy21w584x1m2hpqi25p6j";
+    ver = "0.10.0.1";
   };
   drv = { mkDerivation, base, hedgehog, incipit-core, lib, path, path-io
 , polysemy, tasty, tasty-hedgehog, transformers
 }:
 mkDerivation {
   pname = "polysemy-test";
-  version = "0.10.0.0";
-  src = /nix/store/byqlnsg2xgbpagl85h2kgmj6bryigjbz-source;
+  version = "0.10.0.1";
+  src = /nix/store/lxl8vyrvmkpdf7j78dcxapzlzvk9vbwk-source;
   enableSeparateDataOutput = true;
   libraryHaskellDepends = [
     base hedgehog incipit-core path path-io polysemy tasty
@@ -156,6 +168,52 @@ mkDerivation {
   homepage = "https://github.com/tek/polysemy-test#readme";
   description = "Polysemy effects for testing";
   license = "BSD-2-Clause-Patent";
+}
+;
+}
+;
+  tasty = {
+  meta = {
+    sha256 = "1xjlmgsww34asjl9rcwbziw5l4qqbvi5l4b7qvzf4dc7hqkpq1rs";
+    ver = "1.5.3";
+  };
+  drv = { mkDerivation, ansi-terminal, base, containers, lib
+, optparse-applicative, stm, tagged, transformers, unix
+}:
+mkDerivation {
+  pname = "tasty";
+  version = "1.5.3";
+  src = /nix/store/9028fgac7afc6vw6is37lvq4p8gqpa7m-source;
+  libraryHaskellDepends = [
+    ansi-terminal base containers optparse-applicative stm tagged
+    transformers unix
+  ];
+  homepage = "https://github.com/UnkindPartition/tasty";
+  description = "Modern and extensible testing framework";
+  license = lib.licenses.mit;
+}
+;
+}
+;
+  tasty-hedgehog = {
+  meta = {
+    sha256 = "04kg2qdnsqzzmj3xggy2jcgidlp21lsjkz4sfnbq7b1yhrv2vbbc";
+    ver = "1.4.0.2";
+  };
+  drv = { mkDerivation, base, hedgehog, lib, tagged, tasty
+, tasty-expected-failure
+}:
+mkDerivation {
+  pname = "tasty-hedgehog";
+  version = "1.4.0.2";
+  src = /nix/store/b9mxq4fh65sif22q9a4g041jvp847cyc-source;
+  libraryHaskellDepends = [ base hedgehog tagged tasty ];
+  testHaskellDepends = [
+    base hedgehog tasty tasty-expected-failure
+  ];
+  homepage = "https://github.com/qfpl/tasty-hedgehog";
+  description = "Integration for tasty and hedgehog";
+  license = lib.licenses.bsd3;
 }
 ;
 }

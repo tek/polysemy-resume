@@ -3,25 +3,20 @@
 
   inputs.hix.url = "git+https://git.tryp.io/tek/hix";
 
-  outputs = {hix, ...}: let
-    overrides = {jailbreak, unbreak, ...}: {
-      polysemy-test = jailbreak unbreak;
-    };
-  in hix.lib.pro {
-    ghcVersions = ["ghc92" "ghc94" "ghc96" "ghc98"];
-    compat.versions = ["ghc94" "ghc96"];
+  outputs = {hix, ...}: hix.lib.pro {
+    ghcVersions = ["ghc92" "ghc94" "ghc96" "ghc98" "ghc910"];
     hackage.versionFile = "ops/version.nix";
     gen-overrides.enable = true;
     managed = {
       enable = true;
       lower.enable = true;
-      envs.solverOverrides = overrides;
-      latest.compiler = "ghc98";
+      envs.solverOverrides = {hackage, jailbreak, unbreak, ...}: {
+        polysemy-test = jailbreak unbreak;
+        incipit-base = jailbreak;
+        incipit-core = jailbreak;
+      };
+      latest.compiler = "ghc910";
     };
-
-    inherit overrides;
-    envs.latest.overrides = overrides;
-    envs.lower.overrides = overrides;
 
     cabal = {
       license = "BSD-2-Clause-Patent";
@@ -64,6 +59,16 @@
         ];
       };
 
+    };
+
+    overrides = {jailbreak, unbreak, hackage, ...}: {
+      polysemy-test = unbreak;
+    };
+
+    envs.ghc910.overrides = {hackage, jailbreak, ...}: {
+      incipit-base = hackage "0.6.1.0" "0iyyvxpyyybn5ygr875pav6g5hbs00wa9jbr7qslszqpkfpy5x33";
+      incipit-core = hackage "0.6.1.0" "144c239nxl8zi2ik3ycic3901gxn8rccij3g609n2zgnn3b6zilj";
+      polysemy-test = jailbreak;
     };
 
   };
