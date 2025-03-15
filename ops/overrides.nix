@@ -2,46 +2,6 @@
 dev = {
 };
 ghc910 = {
-  incipit-base = {
-  meta = {
-    sha256 = "0iyyvxpyyybn5ygr875pav6g5hbs00wa9jbr7qslszqpkfpy5x33";
-    ver = "0.6.1.0";
-  };
-  drv = { mkDerivation, base, bytestring, containers, data-default, lib
-, stm, text
-}:
-mkDerivation {
-  pname = "incipit-base";
-  version = "0.6.1.0";
-  src = /nix/store/2k1isywgqm3pcbzdhwyp97n9250g044k-source;
-  libraryHaskellDepends = [
-    base bytestring containers data-default stm text
-  ];
-  homepage = "https://github.com/tek/incipit-core#readme";
-  description = "A Prelude for Polysemy – Base Reexports";
-  license = "BSD-2-Clause-Patent";
-}
-;
-}
-;
-  incipit-core = {
-  meta = {
-    sha256 = "144c239nxl8zi2ik3ycic3901gxn8rccij3g609n2zgnn3b6zilj";
-    ver = "0.6.1.0";
-  };
-  drv = { mkDerivation, base, incipit-base, lib, polysemy }:
-mkDerivation {
-  pname = "incipit-core";
-  version = "0.6.1.0";
-  src = /nix/store/7bfdjb94bzganyaybhhjmxjcwypnsasp-source;
-  libraryHaskellDepends = [ base incipit-base polysemy ];
-  homepage = "https://github.com/tek/incipit-core#readme";
-  description = "A Prelude for Polysemy";
-  license = "BSD-2-Clause-Patent";
-}
-;
-}
-;
 };
 ghc92 = {
 };
