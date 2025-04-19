@@ -38,12 +38,6 @@
     managed = {
       enable = true;
       lower.enable = true;
-      envs.solverOverrides = {hackage, jailbreak, unbreak, ...}: {
-        polysemy-test = jailbreak unbreak;
-        incipit-base = jailbreak;
-        incipit-core = jailbreak;
-      };
-      latest.compiler = "ghc910";
     };
 
     cabal = {

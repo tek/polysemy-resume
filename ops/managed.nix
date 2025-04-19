@@ -17,6 +17,10 @@
         lower = "0.4.3.0";
         upper = "0.5";
       };
+      polysemy-resume = {
+        lower = null;
+        upper = null;
+      };
       polysemy-test = {
         lower = "0.6.0.0";
         upper = "0.11";
@@ -38,7 +42,7 @@
   versions = {
     latest = {
       base = "4.20.0.0";
-      incipit-core = "0.6.1.0";
+      incipit-core = "0.6.1.1";
       polysemy = "1.9.2.0";
       polysemy-plugin = "0.4.5.3";
       polysemy-test = "0.10.0.1";
@@ -74,30 +78,37 @@
       cabal-doctest = {
         version = "1.0.11";
         hash = "152rqpicqpvigjpy4rf1kjlwny1c7ys1r0r123wdjafvv1igflii";
+        repo = "hackage.haskell.org";
       };
       incipit-base = {
-        version = "0.6.1.0";
-        hash = "0iyyvxpyyybn5ygr875pav6g5hbs00wa9jbr7qslszqpkfpy5x33";
+        version = "0.6.1.1";
+        hash = "08ybv7j94yyznrxnrh744bi3i1a00sz8bf5ddfs9vfgfhhkrg8fn";
+        repo = "hackage.haskell.org";
       };
       incipit-core = {
-        version = "0.6.1.0";
-        hash = "144c239nxl8zi2ik3ycic3901gxn8rccij3g609n2zgnn3b6zilj";
+        version = "0.6.1.1";
+        hash = "0qpw07f8ip6h7srqkbzfxyz1z36n75irhc6465s9xvrii1840b2k";
+        repo = "hackage.haskell.org";
       };
       polysemy-plugin = {
         version = "0.4.5.3";
         hash = "1c2agk21jj7fwdj6xkagq0prvxknp3zr6q1f480wizssibcvm7y6";
+        repo = "hackage.haskell.org";
       };
       polysemy-test = {
         version = "0.10.0.1";
         hash = "1sp9iag1brknmdy0qvmgnmynwc4gbg1jy21w584x1m2hpqi25p6j";
+        repo = "hackage.haskell.org";
       };
       tasty = {
         version = "1.5.3";
         hash = "1xjlmgsww34asjl9rcwbziw5l4qqbvi5l4b7qvzf4dc7hqkpq1rs";
+        repo = "hackage.haskell.org";
       };
       tasty-hedgehog = {
         version = "1.4.0.2";
         hash = "04kg2qdnsqzzmj3xggy2jcgidlp21lsjkz4sfnbq7b1yhrv2vbbc";
+        repo = "hackage.haskell.org";
       };
     };
     lower = {
@@ -206,6 +217,20 @@
         hash = "1ga4al351kwcfvsdr1ngyzj4aypvl46w357jflmgxacad8iqx4ik";
       };
     };
+  };
+  solver = {
+    latest = {
+      incipit-base = {
+        jailbreak = true;
+      };
+      incipit-core = {
+        jailbreak = true;
+      };
+      polysemy-test = {
+        jailbreak = true;
+      };
+    };
+    lower = {};
   };
   resolving = false;
 }
