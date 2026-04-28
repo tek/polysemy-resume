@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.36.1.
+-- This file has been generated from package.yaml by hpack version 0.38.2.
 --
 -- see: https://github.com/sol/hpack
 
@@ -53,8 +53,10 @@ library
       LiberalTypeSynonyms
       MonadComprehensions
       MultiWayIf
+      NoFieldSelectors
       OverloadedLabels
       OverloadedLists
+      OverloadedRecordDot
       OverloadedStrings
       PackageImports
       PartialTypeSignatures
@@ -70,11 +72,9 @@ library
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-      OverloadedRecordDot
-      NoFieldSelectors
   ghc-options: -Wall -Widentities -Wincomplete-uni-patterns -Wmissing-deriving-strategies -Wredundant-constraints -Wunused-type-patterns -Wunused-packages
   build-depends:
-      base >=4.16.4.0 && <4.21
+      base >=4.17.2.1 && <4.22
     , incipit-core >=0.4.1.0 && <0.7
     , polysemy >=1.9.0.0 && <1.10
     , transformers >=0.5.6.2 && <0.7
@@ -111,8 +111,10 @@ test-suite polysemy-resume-test
       LiberalTypeSynonyms
       MonadComprehensions
       MultiWayIf
+      NoFieldSelectors
       OverloadedLabels
       OverloadedLists
+      OverloadedRecordDot
       OverloadedStrings
       PackageImports
       PartialTypeSignatures
@@ -128,18 +130,16 @@ test-suite polysemy-resume-test
       UndecidableInstances
       UnicodeSyntax
       ViewPatterns
-      OverloadedRecordDot
-      NoFieldSelectors
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Widentities -Wincomplete-uni-patterns -Wmissing-deriving-strategies -Wredundant-constraints -Wunused-type-patterns -Wunused-packages
   build-depends:
-      base >=4.16.4.0 && <4.21
+      base >=4.17.2.1 && <4.22
     , incipit-core >=0.4.1.0 && <0.7
     , polysemy >=1.9.0.0 && <1.10
     , polysemy-plugin >=0.4.3.0 && <0.5
     , polysemy-resume
-    , polysemy-test >=0.6.0.0 && <0.11
-    , stm >=2.5.0.2 && <2.6
-    , tasty >=1.4.0.3 && <1.6
+    , polysemy-test >=0.3.1.6 && <0.12
+    , stm >=2.5.1.0 && <2.6
+    , tasty >=1.5.2 && <1.6
   mixins:
       base hiding (Prelude)
     , incipit-core (IncipitCore as Prelude)

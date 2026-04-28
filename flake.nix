@@ -5,8 +5,8 @@
 
   outputs = {hix, ...}: hix.lib.pro {
 
-    ghcVersions = ["ghc92" "ghc94" "ghc96" "ghc98" "ghc910"];
-    hackage.versionFile = "ops/version.nix";
+    ghcVersions = ["ghc98" "ghc910" "ghc912"];
+    release.versionFile = "ops/version.nix";
     gen-overrides.enable = true;
 
     packages.polysemy-resume = {
@@ -38,12 +38,15 @@
     managed = {
       enable = true;
       lower.enable = true;
+      latest.compiler = "ghc912";
+      lower.compiler = "ghc94";
     };
 
     cabal = {
       license = "BSD-2-Clause-Patent";
       license-file = "LICENSE";
       author = "Torsten Schmits";
+      language = "GHC2021";
       prelude = {
         enable = true;
         package = "incipit-core";
@@ -57,16 +60,13 @@
       };
     };
 
-
-    overrides = {jailbreak, unbreak, hackage, ...}: {
-      polysemy-test = unbreak;
-    };
-
-    envs.ghc910.overrides = {hackage, jailbreak, ...}: {
-      incipit-base = jailbreak;
-      incipit-core = jailbreak;
+    package-sets.ghc912.overrides = {jailbreak, ...}: {
       polysemy-test = jailbreak;
     };
+
+    hackage.repos."hackage.haskell.org".user = "tek";
+
+    internal.hixCli.dev = true;
 
   };
 }
