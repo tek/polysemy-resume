@@ -19,7 +19,7 @@
       };
       polysemy-resume = {
         lower = null;
-        upper = null;
+        upper = "0.10";
       };
       polysemy-test = {
         lower = "0.3.1.6";
@@ -413,6 +413,10 @@
     };
     lower = {};
   };
-  packages = {};
+  packages = {
+    polysemy-resume = {
+      version = "0.9.0.2";
+    };
+  };
   resolving = false;
 }
