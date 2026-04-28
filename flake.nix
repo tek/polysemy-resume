@@ -6,7 +6,6 @@
   outputs = {hix, ...}: hix.lib.pro {
 
     ghcVersions = ["ghc98" "ghc910" "ghc912"];
-    release.versionFile = "ops/version.nix";
     gen-overrides.enable = true;
 
     packages.polysemy-resume = {
